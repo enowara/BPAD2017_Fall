@@ -29,7 +29,7 @@ function [vidSin_out1, vidCol_out1, Fps1] = read_video(filename1, fullPath2File1
 % vid_start1 =  vid_start;
 % vid_end1 = vid_end;
 
-addpath('/homes/nowara/Documents/BioSignalsCode/matlabDocCode/sort_nat/');
+addpath('/home/ewa/Dropbox (Rice Scalable Health)/DocumentsUbuntu/Liveness_Detection_Security/Code/temp_helper_functions');
 %% if the input is a video
 if strcmp(vid_phot1, 'vid')
 %     disp('videoMode')
@@ -69,7 +69,7 @@ video2Save_init = zeros(Height, Width, 3, (vid_start1:floor(video_Length - vid_e
      counter = counter+1;
 %     for counter = vid_start1:v.Duration-1
         temp_video = readFrame(v);
-        video2Save_init(:,:,:,counter) = temp_video;  % otherwise the temp_video gets overwritten and ends up being a single frame
+        video2Save(:,:,:,counter) = temp_video;  % otherwise the temp_video gets overwritten and ends up being a single frame
     end
 
 % if counter < floor(vid_end1) % it means that there are less frames that were read than what it says the duration of the video is

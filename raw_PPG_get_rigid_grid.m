@@ -1,7 +1,7 @@
-function [raw_PPG1] = raw_PPG_get(vid_out1, tracked_points1, n1)
+function [raw_PPG1] = raw_PPG_get_rigid_grid(vid_out1, tracked_points1, n1)
 % for each small grid region, compute a raw PPG signal by spatially
-% averaging pixels in that area. This assumes the face was split into
-% specific regions of varying size and shape. 
+% averaging pixels in that area. This assumes there are equally spaced
+% predefined squae grids uniformly distributed over the face. 
 
 % input:
 % vid_out1 - video input

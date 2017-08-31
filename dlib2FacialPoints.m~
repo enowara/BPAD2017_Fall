@@ -27,28 +27,28 @@ noFace = 0;
 extraFaces = 0;         % # of additional faces - # of missing faces/frames
 lastFrame = floor(size(points,1)/69)-1;        % last image to examine
 if lastFrame <= 0 
-    lastFrame = 0;
+    lastFrame = 1;
 end
-i = 0;                % first image to examine
+i = 1;                % first image to examine
 prevFace = zeros(69, 2);    % stores location of face from previous frame
 headerFlag = 1300;      % value in points text file to signify header
 
 % find first image and calculate extraFaces until then
-% cnt = 0;
-% while(1)
-%     header = points((cnt)*69+1,:);
-%     extraFaces = cnt - header(1);       % extraFaces is # of headers - frame #
-%     if header(1) == i && header(2) == headerFlag    % found header for image i
-%         break
-%     end
-%     if header(1) > i && header(2) == headerFlag     % went beyond image i... image i does not exist
-%         disp(['Image/Face does not exist for ' num2str(i)])
-%         break
-%     end
-%     cnt = cnt+1;
-% end
+cnt = 0;
+while(1)
+    header = points((cnt)*69+1,:);
+    extraFaces = cnt - header(1);       % extraFaces is # of headers - frame #
+    if header(1) == i && header(2) == headerFlag    % found header for image i
+        break
+    end
+    if header(1) > i && header(2) == headerFlag     % went beyond image i... image i does not exist
+        disp(['Image/Face does not exist for ' num2str(i)])
+        break
+    end
+    cnt = cnt+1;
+end
 
-while (i < lastFrame + 1) % should be -1 but getting rid of the 
+while (i <= lastFrame + 1) % should be -1 but getting rid of the 
                                      %last one just in case it didn't get fully saved
     %(length(img_names)-1) % i = 0 is the first image
     
@@ -61,35 +61,35 @@ while (i < lastFrame + 1) % should be -1 but getting rid of the
         frameNum = pointsPerImgAll(1,1);
         
         % Check if frame/face does not exist
-%         if pointsPerImgAll(1,2) == headerFlag       % it's a header
-%             if frameNum ~= i    % incorrect frame # means current frame does not exist
-%                 extraFaces = extraFaces - frameNum + i;   % decrement extraFaces by number of missing frames 
-%                 i = frameNum;       % skip ahead to next existing frame
-%             end
-%         end
+        if pointsPerImgAll(1,2) == headerFlag       % it's a header
+            if frameNum ~= i    % incorrect frame # means current frame does not exist
+                extraFaces = extraFaces - frameNum + i;   % decrement extraFaces by number of missing frames 
+                i = frameNum;       % skip ahead to next existing frame
+            end
+        end
         
         % Check if there are multiple faces
-%         while(1)
-%             nextHeader = points((i+1+extraFaces)*69+1,:);
-%             if nextHeader(1) == i && nextHeader(2) == headerFlag
-%                 extraFaces = extraFaces + 1;
-%                 % you have another face to read
-%                 tempFace = points(((i+1+extraFaces)*69 + 1):((i+1+extraFaces)*69+69),:);
-%                 % if new face read in was actually the correct face
-%                 if abs(tempFace(35,1)-prevFace(35,1)) < abs(pointsPerImgAll(35,1)-prevFace(35,1))
-%                     pointsPerImgAll = tempFace;     % save new face read instead
-%                 end
-%             else
-%                 break
-%             end
-%         end
+        while(1)
+            nextHeader = points((i+1+extraFaces)*69+1,:);
+            if nextHeader(1) == i && nextHeader(2) == headerFlag
+                extraFaces = extraFaces + 1;
+                % you have another face to read
+                tempFace = points(((i+1+extraFaces)*69 + 1):((i+1+extraFaces)*69+69),:);
+                % if new face read in was actually the correct face
+                if abs(tempFace(35,1)-prevFace(35,1)) < abs(pointsPerImgAll(35,1)-prevFace(35,1))
+                    pointsPerImgAll = tempFace;     % save new face read instead
+                end
+            else
+                break
+            end
+        end
         
         prevFace = pointsPerImgAll;         % call current face the previous face for next iter
 
         
         % read i'th img
 %         img_name = img_names{i}; %img_names((i+1)).name;
-        img_path = fullfile(imgFolder, img_names);%images_folder_path, image_name);
+        img_path = fullfile(imgFolder, img_name);%images_folder_path, image_name);
         img = imread(img_path);
             
         pointsPerImg1 = pointsPerImgAll(2:69,1);
