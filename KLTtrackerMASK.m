@@ -1,4 +1,4 @@
-function [pointsList] = KLTtrackerMASK(images, regionMask, rr)
+function [pointsList] = KLTtrackerMASK(images, regionMask, rr, vis)
 % KLTtracker
 % this code automatically defines grid ROIs on the face 
 % % debugging:
@@ -52,11 +52,13 @@ ROIboxTr = [min(pointsList_init(:,1)), min(pointsList_init(:,2)), ...
     (max(pointsList_init(:,2)) - min(pointsList_init(:,2))) ];
 
 % % check where the grid points are
-% testImg = first_frame;
-% testImg = insertMarker(testImg, [pointsList_init], '+', 'Color', 'blue');
-% testImg = insertShape(testImg, 'Rectangle', ROIboxTr, 'Color', 'red');
-% 
-% figure, imshow(testImg)
+if vis == 1
+    testImg = first_frame;
+    testImg = insertMarker(testImg, [pointsList_init], '+', 'Color', 'blue');
+    testImg = insertShape(testImg, 'Rectangle', ROIboxTr, 'Color', 'red');
+
+    figure, imshow(testImg)
+end
 
 % detect feature poitns
 pointsStr = detectMinEigenFeatures(first_frame, 'MinQuality', 0.001, 'ROI', ROIboxTr);
@@ -69,11 +71,12 @@ pointsStr = pointsStr.selectStrongest(numKLT);
 in_sel = inpolygon(pointsStr.Location(:,1), pointsStr.Location(:,2),pointsList_init(:,1),pointsList_init(:,2)); 
 points = pointsStr.Location(in_sel,:); 
 
-% displayImage = first_frame;
-% displayImage = insertShape(displayImage, 'Rectangle', ROIboxTr, 'Color', 'red');
-% displayImage = insertMarker(displayImage, points, '+', 'Color', 'white');
-% figure, imshow(displayImage);
-
+if vis == 1
+    displayImage = first_frame;
+    displayImage = insertShape(displayImage, 'Rectangle', ROIboxTr, 'Color', 'red');
+    displayImage = insertMarker(displayImage, points, '+', 'Color', 'white');
+    figure, imshow(displayImage);
+end
 
 %%
 
@@ -105,17 +108,20 @@ for i = 1:numFrame
         % Apply the transformation to the bounding box points
         pointsListpoints = transformPointsForward(xform, pointsListpoints);
         xform.T;
-        % Display tracked points
-        next_frame = insertMarker(next_frame, visiblePoints, '+', ...
-            'Color', 'white');
-%         imshow(next_frame);
         
         pointsList(i,:,:) = pointsListpoints;
         % Reset the points
         oldPoints = visiblePoints;
         setPoints(tracker, oldPoints);
         i;
-       
+        % Display tracked points
+        if vis == 1
+            next_frame = insertMarker(next_frame, visiblePoints, '+', ...
+                'Color', 'white');
+            imshow(next_frame);
+            hold on 
+            plot(visiblePoints(:,1),visiblePoints(:,2), 'g.')
+        end
       else
           disp('not tracking')
       end

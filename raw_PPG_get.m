@@ -33,8 +33,8 @@ for t = 1:numFrame
     y_access = included_y_All_Final{t};
     
     for k = 1:numGrids  % if we ignore the last grid point, maybe it won't go over the boundary and no NaN
-        grids_xk = cell2mat(x_access(k));
-        grids_yk = cell2mat(y_access(k)); 
+        grids_xk = round(cell2mat(x_access(k)));
+        grids_yk = round(cell2mat(y_access(k))); 
         ROI_grid = frame_t(grids_xk, grids_yk);
         rawPPG_ROI = mean(mean(ROI_grid));
         raw_PPG1(t,k) = rawPPG_ROI;

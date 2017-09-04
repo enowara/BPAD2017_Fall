@@ -1,7 +1,7 @@
-function [raw_PPG1] = raw_PPG_get(vid_out1, included_x_All_Final, included_y_All_Final)
+function [raw_PPG1] = raw_PPG_get_2(vid_out1, tracked_points1, n1)
 % for each small grid region, compute a raw PPG signal by spatially
-% averaging pixels in that area. This assumes the face was split into
-% specific regions of varying size and shape. 
+% averaging pixels in that area. This assumes there are equally spaced
+% predefined squae grids uniformly distributed over the face. 
 
 % input:
 % vid_out1 - video input
@@ -16,6 +16,8 @@ function [raw_PPG1] = raw_PPG_get(vid_out1, included_x_All_Final, included_y_All
 
 %% debugging
 % vid_out1 = vidSin_out;
+% tracked_points1 = tracked_points;
+% n1 = n;
 
 
 numFrame = size(included_y_All_Final,2); %size(vid_out1,3); % should be based on for how many frames points were detected and tracked
@@ -31,22 +33,39 @@ for t = 1:numFrame
     frame_t = vid_out1(:,:,t);
     x_access = included_x_All_Final{t}; % get coords for each ROI for a given frame
     y_access = included_y_All_Final{t};
-    
-    for k = 1:numGrids  % if we ignore the last grid point, maybe it won't go over the boundary and no NaN
-        grids_xk = roundcell2mat(x_access(k));
-        grids_yk = cell2mat(y_access(k)); 
-        ROI_grid = frame_t(grids_xk, grids_yk);
-        rawPPG_ROI = mean(mean(ROI_grid));
-        raw_PPG1(t,k) = rawPPG_ROI;
+   % for each triangular ROI
+    for k = 1:numGrids
+        grids_xk = round(cell2mat(x_access(k)));
+        grids_yk = round(cell2mat(y_access(k))); 
+        
+        for n = 1:length(grids_xk)
+            x_start_temp = floor(grids_xk(n)); % sometimes it goes over the frame -tracking failure?
+            y_start = floor(grids_yk(n));
+
+            x_end = floor(grids_xk(n+1));
+            y_end = floor(grids_yk(n+1));
+
+            ROI_grid_n = frame_t(floor(x_start):floor(x_end), floor(y_start):floor(y_end));
+            rawPPG_ROI_n(n) = mean(ROI_grid_n);
+        end
+        raw_PPG1(t,k) = mean(rawPPG_ROI_n);
     
     if sum(sum(isnan(raw_PPG1))) ~= 0
-        t
-        k
+        y_start
+        y_end
+        x_start
+        x_end
         break
     end
         
     end
-    
+% append to a rawPPG matrix
+
+% add a condition to make sure the averaged ROI doesn't come outside of the
+% defined facial ROI or the frame itself
+
+% stop if any value is NaN - it means the grid ROI start and end are wrong,
+% ex if start = end, grid PPG = NaN
     if sum(sum(isnan(raw_PPG1))) ~= 0
         break
     end

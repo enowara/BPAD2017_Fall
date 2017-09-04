@@ -1,4 +1,4 @@
-function [faceROI_save, included_x_All_Save, included_y_All_Save] = find_ROIs(firstPoints1, vidSin_out)
+function [faceROI_save, included_x_All_Save, included_y_All_Save, firstPoints_augmented] = find_ROIs(firstPoints1, vidSin_out, round2, faceROI)
 % given 68 landmark points for either the first frame of the video or each
 % frame, define ROIs on the face from which PPG will be extracted. Use
 % Delanuay triangulation to define triangles as ROIs and remove the eye and
@@ -21,10 +21,20 @@ function [faceROI_save, included_x_All_Save, included_y_All_Save] = find_ROIs(fi
 faceROI_save = [];
 included_x_All_Save = [];
 included_y_All_Save = [];
-for t = 1:size(firstPoints1,1)
+for t = 1:size(vidSin_out,3)
     
     firstFrame = vidSin_out(:,:,t);
-    
+    if round2 == 2
+        if ndims(firstPoints1) ==3
+            firstPoints_augmented =firstPoints1(t,:,:);
+            firstPoints_augmented = permute(firstPoints_augmented, [2 3 1]);
+        else
+            firstPoints_augmented =firstPoints1;
+        end
+        
+    else
+        
+       
     if ndims(firstPoints1) ==3
         firstPoints2 = firstPoints1(t, :,:); % if more than one frame.
         firstPoints2 = permute(firstPoints2, [2 3 1]);
@@ -82,8 +92,8 @@ for t = 1:size(firstPoints1,1)
     % final face ROI / mask that includes the whole face with forehead 
     % but has eyes and mouth removed - noisy due to motion
     faceROI = region_no_eyes - regionMask_mouth;
-    faceROI_save{t} = faceROI;
-
+%     faceROI_save{t} = faceROI;
+    faceROI_save = faceROI;
     %% use triangulation to define small ROIs between landmarks
     firstPoints_augmented_x1 = [firstPoints2(:,1); forehead1(:,1)]; % add points to the forehead
     firstPoints_augmented_y1 = [firstPoints2(:,2); forehead1(:,2)];
@@ -99,6 +109,8 @@ for t = 1:size(firstPoints1,1)
     firstPoints_augmented_y = firstPoints_augmented_y1([1,4,7,10, 13, 17, 22, 23, 32, 36, 69, 73, 74, 78]); 
 
     firstPoints_augmented = [firstPoints_augmented_x firstPoints_augmented_y];
+    
+    end
     % constraint on the max number of triangles or min size of each triangle
     TRI = delaunay(double(firstPoints_augmented(:,1)),double(firstPoints_augmented(:,2)));
 %     figure, imshow(firstFrame), hold on, plot(firstPoints_augmented(:,1),firstPoints_augmented(:,2), 'g*')
@@ -155,14 +167,14 @@ for t = 1:size(firstPoints1,1)
 
         % remove triangles that are empty (mask) or that have less than 10 pixels total
 
-        if length(included_x) > 10 
-            count = count+1;
-            included_x_All{count} = included_x; % save 
-            included_y_All{count} = included_y;
-            areatrAll = [areatrAll; areatr];
-        else 
-            continue
-        end
+%         if length(included_x) > 10 
+%             count = count+1;
+%             included_x_All{count} = included_x; % save 
+%             included_y_All{count} = included_y;
+%             areatrAll = [areatrAll; areatr];
+%         else 
+%             continue
+%         end
 
     end
 
@@ -212,7 +224,7 @@ for t = 1:size(firstPoints1,1)
 %             included_y_All_Final{count} = [included_y_All_Final1{tr_1}; included_y_All_Final1{tr_1+1}];
 %             tr_1 = tr_1+2;
 %         else 
-%             count = count+1;
+%             count = count TRI = delaunay(double(firstPoints_augmented(:,+1;
 %             included_x_All_Final{count} = included_x_All_Final1{tr_1};
 %             included_y_All_Final{count} = included_y_All_Final1{tr_1};
 %             tr_1 = tr_1+1;
@@ -221,8 +233,8 @@ for t = 1:size(firstPoints1,1)
 % included_y_All_Save{t} = included_y_All_Final;
 % included_x_All_Save{t} = included_x_All_Final;
 
-included_y_All_Save{t} = included_y_All;
-included_x_All_Save{t} = included_x_All;
+included_y_All_Save{t} = included_y_All1;
+included_x_All_Save{t} = included_x_All1;
 %% combine neighboring ROIs
 end % end for t
 
