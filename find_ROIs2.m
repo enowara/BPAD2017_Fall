@@ -25,9 +25,9 @@ for t = 1:size(tracked_points_mask,1)
     
     % constraint on the max number of triangles or min size of each triangle
     TRI = delaunay(double(firstPoints_augmented(:,1)),double(firstPoints_augmented(:,2)));
-%     figure, imshow(firstFrame), hold on, plot(tr_pnts_x, tr_pnts_y, '.b')
-%     plot(firstPoints_augmented(:,1),firstPoints_augmented(:,2), 'g*')
-%     triplot(TRI,double(firstPoints_augmented(:,1)),double(firstPoints_augmented(:,2)), 'g')
+    figure, imshow(firstFrame), hold on, plot(tr_pnts_x, tr_pnts_y, '.b')
+    plot(firstPoints_augmented(:,1),firstPoints_augmented(:,2), 'g*')
+    triplot(TRI,double(firstPoints_augmented(:,1)),double(firstPoints_augmented(:,2)), 'g')
 
     % numbers used to define vertices of the triangles correspond to the
     % indices of each facial landmark
