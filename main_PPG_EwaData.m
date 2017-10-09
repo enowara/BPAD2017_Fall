@@ -4,6 +4,7 @@
 % compute raw PPG for each ROI
 % and save
 
+
 %% initialize
 filename =''; %'01_01_01.avi';
 vid_phot = 'phot'; %'vid';
@@ -15,7 +16,7 @@ mainFolderVids = '/media/ewa/SH/DatasetsAntiSpoof/EwaPPGdataCollection/NewerHand
 mainFolderPnts = '/media/ewa/SH/DatasetsAntiSpoof/EwaPPGdataCollection/NewerHandvsFixed/';
 
 vidList = dir(mainFolderVids);
-for vidNum = 3:length(vidList)
+for vidNum = [4:6, 8:length(vidList)]
     
     vidName = vidList(vidNum).name; % EwaLiveCamFixed/cam1/';
     fullPath2File = [mainFolderVids vidName '/cam1/'];
@@ -102,9 +103,14 @@ for vidNum = 3:length(vidList)
         
     % ratio of 1st max peak to 2nd max peak
     % find 2nd max peak
-    [pks, locs]  = findpeaks(P_gAll(:,1),freq_g)
-    
-    [pks_sort, idxPeaks] = sort(pks, 'descend');
+    for g = 1:size(P_gAll,2)
+        [pks, locs] = findpeaks(P_gAll(:,g),freq_g);
+
+        [pks_sort, idxPeaks] = sort(pks, 'descend');
+        secondMaxFreq(g) = freq_g((idxPeaks(2)));
+
+        ratio_1_2(g) = freqMax(g)/secondMaxFreq(g);
+    end
     %% Machine learning 
 
     %% save

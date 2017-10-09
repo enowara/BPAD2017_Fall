@@ -26,8 +26,13 @@ if Fps1 == 30
     bHigh = highpass_05;
     aHigh = IIR_part;
 elseif Fps1 == 25
-    load('Trial2_Filters_25fps.mat')
-    disp('using 25 fps filters')
+    load('EwaHighPass.mat')
+    load('EwaLowPass.mat')
+%     disp('using 25 fps filters')
+    bLow = b;
+    aLow = 1;
+    bHigh = b_i;
+    aHigh = a_i;
 else
     load('Trial2_Filters_30fps.mat')  % elliptical filter with lower order for high pass - no NaN values
     disp('Passed non-standard 30 fps, using filters for 30 by default')

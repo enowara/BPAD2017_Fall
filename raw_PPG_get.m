@@ -1,54 +1,72 @@
-function [raw_PPG1] = raw_PPG_get(vid_out1, included_x_All_Final, included_y_All_Final)
-% for each small grid region, compute a raw PPG signal by spatially
-% averaging pixels in that area. This assumes the face was split into
-% specific regions of varying size and shape. 
-
-% input:
-% vid_out1 - video input
-% tracked_points1 - points around which PPG should be computed
-% n1 - controls the size of the square around each grid point from which 
-% PPG will be computed, if small there will be ROIs that are omitted and if
-% large, there will be overlap between other grid regions PPG computation
-
-% output:
-% raw_PPG1 - [T x R], where T is frames and R are regions from which the
-% signals were computed
+function [PPGraw] = raw_PPG_get(filteredImages, gridPoints, n)
+% get a raw estimate of the PPG in R, G, B channels by using spatial
+% averaging for each grid inside each small ROI
 
 %% debugging
-% vid_out1 = vidSin_out;
+% ch = chR;
+% filteredImages = vg;
+% gridPoints = gridROI;
+% n = nn;
 
+numFrame = size(filteredImages,3);
+imageHeight = size(filteredImages,1);
+imageWidth = size(filteredImages,2);
+% initialize PPG
+PPG = zeros(floor(numFrame), size(gridPoints,2));
 
-numFrame = size(included_y_All_Final,2); %size(vid_out1,3); % should be based on for how many frames points were detected and tracked
-numGrids = size(included_x_All_Final{1},2);
-% TODO: check if the last row of grids is correct
+%     PPGraw = getPPGperChannel(ch)
+%     function getPPGperChannel(ch)
 
-% initialize raw PPG matrix
-raw_PPG1 = zeros(floor(numFrame), numGrids);
+for k = 1:floor(numFrame)
+      rawPerfussion = (filteredImages(:,:,k));             
+         for c = 1:size(gridPoints,2) 
+            % Get the tracked gridPoints 
+            cxStart = round(gridPoints(k, c,1));
+            cyStart = round(gridPoints(k, c,2)); 
+            if (cyStart-n)<1
+                yStart = 1;
+            else
+                yStart = (cyStart-n);
+            end 
 
-% for each frame, get an average value inside a ROI
-for t = 1:numFrame
-% for each grid ROI point
-    frame_t = vid_out1(:,:,t);
-    x_access = included_x_All_Final{t}; % get coords for each ROI for a given frame
-    y_access = included_y_All_Final{t};
+            if (cxStart-n)<1
+                xStart = 1;
+            else
+                xStart = (cxStart-n);
+            end 
+
+            if (cyStart+(n-1)) > imageHeight
+                yEnd = imageHeight;
+            else
+                yEnd = (cyStart+(n-1));
+            end
+
+            if (cxStart+(n-1)) > imageWidth 
+                xEnd = imageWidth ;
+            else 
+                xEnd = (cxStart+(n-1)) ;
+            end           
+
+%         pause(2)
+if yStart > yEnd || xStart > xEnd
+    disp('ISSUE PPG')
+end
+            rawPPG = rawPerfussion(yStart:yEnd, xStart:xEnd);            
+            rawPPG = mean(rawPPG,1); 
+            rawPPG = mean(rawPPG,2);
+            
+            PPGraw(k,c) = rawPPG(:); 
+
+         end
+end
+
     
-    for k = 1:numGrids  % if we ignore the last grid point, maybe it won't go over the boundary and no NaN
-        grids_xk = round(cell2mat(x_access(k)));
-        grids_yk = round(cell2mat(y_access(k))); 
-        ROI_grid = frame_t(grids_xk, grids_yk);
-        rawPPG_ROI = mean(mean(ROI_grid));
-        raw_PPG1(t,k) = rawPPG_ROI;
-    
-    if sum(sum(isnan(raw_PPG1))) ~= 0
-        t
-        k
-        break
-    end
+
+end
         
-    end
-    
-    if sum(sum(isnan(raw_PPG1))) ~= 0
-        break
-    end
-end
-end
+%          % plot
+%         figure
+%         for c = 1:size(gridPoints,2)
+%             hold on
+%         plot((1:floor(numFrame)), PPG(:, c), 'b')
+%         end

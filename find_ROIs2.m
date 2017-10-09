@@ -1,4 +1,4 @@
-function [included_x_All_Save, included_y_All_Save] = find_ROIs2(firstPoints_augmented, tracked_points_mask)
+function [included_x_All_Save, included_y_All_Save] = find_triangle_ROIs2(firstPoints_augmented, tracked_points_mask)
 % given 68 landmark points for either the first frame of the video or each
 % frame, define ROIs on the face from which PPG will be extracted. Use
 % Delanuay triangulation to define triangles as ROIs and remove the eye and
