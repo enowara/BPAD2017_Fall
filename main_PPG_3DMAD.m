@@ -9,15 +9,11 @@ folderMain = '/media/ewa/SH/DatasetsAntiSpoof/3dmadDirectories/';
 addpath('/media/ewa/SH/MERL_research/BioSignalsCode/matlabDocCode/altmany-export_fig-5be2ca4');
         
 datte = '10-08';
-saveLiuFolder = ['trash/' datte '/'];
-mkdir(saveLiuFolder)
 
 fullPath2Save = '/home/ewa/Dropbox (Rice Scalable Health)/DocumentsUbuntu/Liveness_Detection_Security/Results/BPAD2017_Fall/Live_vs_Fake_ROI/';
-mkdir(fullPath2Save)
+mkdir([fullPath2Save datte '/' ])
  for f = 1:3
-     S = [];
-     Mlist = [];
-     
+
      folderEnd = ['Data0' num2str(f) 'Keep/']; 
      fileNameList = dir([[folderMain folderEnd] ['*' '.avi']]); %
 
@@ -27,7 +23,7 @@ mkdir(fullPath2Save)
     
     [cs,index] = sort_nat(imgCells,'ascend');
     img_names = cs;
-   for  m = 1:length(img_names)
+   for  m = 1:10%length(img_names)
     try
         vidName = img_names{m};       
             % read in the videos
@@ -52,7 +48,7 @@ t=1; % first frame
     % if facial landmarks are only detected for the first frame, only feed in
     % the first frame to define the mask and points
     
-    % add the forehead ROI
+    % add the forehead ROI, with dilation and removed eyebrows
     [faceMask, firstPoints_augmented] = face_points_mask(firstPoints, firstFrame);
     
     % TODO: learn where the forehead points should lie using simple
@@ -173,9 +169,7 @@ t=1; % first frame
     diff_HR_ave = HR_vec - HR_ave; % feature 5
     
     clear vg imgCells fileNameList frames firstFrame faceMask
-    
-    mkdir([fullPath2Save datte '/'])
-    % save everything?
+        % save everything?
     save([fullPath2Save datte '/' '3DMAD-'  '-' num2str(f) '-' num2str(m) '.mat'])
     disp(['processed - ' num2str(f) '-' num2str(m)])
     catch

@@ -1,4 +1,4 @@
-function [finalImg, firstPoints_augmented1] = face_points_mask(firstPoints1, vidSin_out)
+function [faceROI, firstPoints_augmented1] = face_points_mask(firstPoints1, vidSin_out)
 % input: 
 % firstPoints1 - 68 detected landmarks
 % vidSin_out - video frames
@@ -94,15 +94,9 @@ for t = 1:size(vidSin_out,3)
 
     %% dilate
 %     use dilation to remove small remnants of removed ROIs 
-    se = strel('ball',5,5); % Create a nonflat ball-shaped structuring element.
-    imDil = imdilate((abs(1-faceROI)),se);
-%     figure, imshow(imDil, [])
-    imDil = imDil-min(imDil(:));
-    imDil = logical(imDil);
-%         figure, imshow(1-imDil, [])
-finalMask = double(1-imDil);
-finalImg = finalMask.*double(firstFrame);
-% figure, imshow(uint8(finalImg), [])
+    se = strel('ball',2,2); % Create a nonflat ball-shaped structuring element.
+    imDil = imdilate(abs(1-faceROI),se);
+figure, imshow(imDil)
     %% use triangulation to define small ROIs between landmarks
     firstPoints_augmented_x1 = [firstPoints2(:,1); forehead1(:,1)]; % add points to the forehead
     firstPoints_augmented_y1 = [firstPoints2(:,2); forehead1(:,2)];
