@@ -23,7 +23,7 @@ mkdir([fullPath2Save datte '/' ])
     
     [cs,index] = sort_nat(imgCells,'ascend');
     img_names = cs;
-   for  m = 1:10%length(img_names)
+   for  m = 1:length(img_names)
     try
         vidName = img_names{m};       
             % read in the videos

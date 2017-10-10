@@ -12,7 +12,7 @@ title('SNR goodness of each ROIs HR')
 xlabel('HR of each ROI')
 ylabel('SNR goodness')
 for f = 1:3
-    for m = 1:10%:85
+    for m = 1%:10%:85
         % load HR_vec, SNR_goodness
         load([folderResults datte '/' '3DMAD-' '-' num2str(f) '-' num2str(m) '.mat'], 'HR_vec', 'SNR_goodness')
         if f == 1 || f == 2

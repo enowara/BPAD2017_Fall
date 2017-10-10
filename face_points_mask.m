@@ -88,7 +88,7 @@ for t = 1:size(vidSin_out,3)
     % but has eyes and mouth removed - noisy due to motion
     faceROI = regionMask_noEyebrows - regionMask_mouth;
 %     figure, imshow(faceROI)
-    figure, imshow(uint8(double(faceROI).*double(firstFrame)))
+%     figure, imshow(uint8(double(faceROI).*double(firstFrame)))
 %     faceROI_save{t} = faceROI; % if many frames, save all masks
 
 
