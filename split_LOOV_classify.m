@@ -87,14 +87,8 @@ for p = 1:pEnd
     %% TESTING
     
     % find testing people indices     
-    Sts_pStart = (testPerson-1)*N+1;
-    Sts_pEnd = (testPerson)*N;
-    Sts_idx = [];
-    for ll = 1:length(Sts_pStart)
-        Sts_i = Sts_pStart(ll):Sts_pEnd(ll);
-        Sts_idx = [Sts_idx Sts_i];
-    end    
-
+    Sts_idx = testPerson);
+   
     % feature 1
     HR_vec_All_live_p1_ts = HR_vec_All_Live1(Sts_idx,:);% include each tr persons 16 ROIs
     HR_vec_All_live_p2_ts = HR_vec_All_Live2(Sts_idx,:);
