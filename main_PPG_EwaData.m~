@@ -14,15 +14,15 @@ fileFormat = '.png';% '';
 mainFolderVids = '/media/ewa/SH/DatasetsAntiSpoof/EwaPPGdataCollection/NewerHandvsFixedNotxt/';
 mainFolderPnts = '/media/ewa/SH/DatasetsAntiSpoof/EwaPPGdataCollection/NewerHandvsFixed/';
 
-    datte = '10_10';
+    datte = '10_10/';
     fullPath2Save = ['/home/ewa/Dropbox (Rice Scalable Health)/DocumentsUbuntu/' ...
-        'Liveness_Detection_Security/Results/BPAD2017_Fall/EwaData/' datte '/'];
+        'Liveness_Detection_Security/Results/BPAD2017_Fall/EwaData/ datte' '/'];
     mkdir(fullPath2Save)
 
 vidList = dir(mainFolderVids);
 
 
-for vidNum = 3:length(vidList)% [4:6, 8:length(vidList)]
+for vidNum = 3%:length(vidList)% [4:6, 8:length(vidList)]
     
     vidName = vidList(vidNum).name; % EwaLiveCamFixed/cam1/';
     fullPath2File = [mainFolderVids vidName '/cam1/'];
@@ -37,11 +37,11 @@ for vidNum = 3:length(vidList)% [4:6, 8:length(vidList)]
     vid_length = length(dir(fullPath2File));
     tim_win = 10*30;
     counter = 0;
-    for tt = 1:tim_win:vid_length-tim_win
+    for tt = 1:tim_win:vid_length
         counter = counter+1;
         vid_start = tt;
         vid_finish = tt+tim_win - 1;%[]; % remove this many frames from the end of the video
-        vid_end = vid_length - tim_win - vid_start - 1;
+        vid_end = vid_length - vid_finish - vid_start;
         %% read video 
         [vidSin_out, ~, Fps] = read_video(filename, fullPath2File, vid_phot, fileFormat, vid_start, vid_end);
 

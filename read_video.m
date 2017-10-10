@@ -28,6 +28,7 @@ function [vidSin_out1, vidCol_out1, Fps1] = read_video(filename1, fullPath2File1
 % fileFormat1 =  fileFormat;
 % vid_start1 =  vid_start;
 % vid_end1 = vid_end;
+% Fps1 =  Fps;
 
 addpath('/home/ewa/Dropbox (Rice Scalable Health)/DocumentsUbuntu/Liveness_Detection_Security/Code/temp_helper_functions');
 %% if the input is a video
@@ -139,7 +140,7 @@ elseif strcmp(vid_phot1, 'phot')
 
     %rawImage = zeros(Height,Width, numFrame);
     counter = 0;
-    for t = vid_start1:numFrame
+    for t = vid_start1:(vid_start1+numFrame)
         counter = counter+1;
         Img = imread([fullPath2File1 fileList{t}]);    % first image
 

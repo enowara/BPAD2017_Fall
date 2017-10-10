@@ -77,7 +77,7 @@ for p = 1:pEnd
     
     diff_HR_med_All_attack_p_tr = diff_HR_med_All_Attack(Str_idx,:);
     
-    % feature 5
+    % feature 5HR_vec_All_live_p_tr, SNR_goodness_All_live_p_tr
     diff_HR_ave_All_live_p1 = diff_HR_ave_All_Live1(Str_idx,:);% include each tr persons 16 ROIs
     diff_HR_ave_All_live_p2 = diff_HR_ave_All_Live2(Str_idx,:);
     diff_HR_ave_All_live_p_tr = [diff_HR_ave_All_live_p1; diff_HR_ave_All_live_p2];
@@ -87,7 +87,7 @@ for p = 1:pEnd
     %% TESTING
     
     % find testing people indices     
-    Sts_idx = testPerson);
+    Sts_idx = testPerson;
    
     % feature 1
     HR_vec_All_live_p1_ts = HR_vec_All_Live1(Sts_idx,:);% include each tr persons 16 ROIs
@@ -152,12 +152,67 @@ for p = 1:pEnd
 
         % combine live and fake
         
+%         % if want balanced classes
+%         Ytr = [YtrL(1:80,:); YtrF];
+%         Yts = [YtsL(1:5,:); YtsF];
+% 
+%         Xtr = [PdataLtr(1:80,:); PdataFtr];
+%         Xts = [PdataLts(1:5,:); PdataFts];
+        
+%         % else if using all data, where 2 x more live
         Ytr = [YtrL; YtrF];
         Yts = [YtsL; YtsF];
 
         Xtr = [PdataLtr; PdataFtr];
         Xts = [PdataLts; PdataFts];
+        
+        
+        % keep only some of the features
+%         idx_feature = [1:22]; % the first 2
+        
+%         Xtr = Xtr(:,idx_feature);
+%         Xts = Xts(:,idx_feature);
 %% train a classifier or threshold
 
 % call a classifier function and save result for each p run
+
+% SVM,put in a fct l8r
+        SVMModel = fitcsvm(Xtr,Ytr,'KernelFunction','linear','Standardize',false);
+        [labelSVM,score] = predict(SVMModel,Xts);
+        predictionSVM = (length(find(labelSVM==Yts))/length(Yts))*100;
+        
+        % prediction for live and fake separately 
+        LiveIdx = find(Yts == 1);
+        FakeIdx = find(Yts == 0);
+        labelLive = labelSVM(LiveIdx); %label(1:end/2);
+        labelFake = labelSVM(FakeIdx); %label((end/2+1):end);
+        YtsLive = Yts(LiveIdx); %Yts(1:end/2);
+        YtsFake = Yts(FakeIdx); %Yts((end/2+1):end);
+        
+        SVMModel2 = fitPosterior(SVMModel);
+        [~,score_posterior] = resubPredict(SVMModel2);
+
+        predictionSVMLive = (length(find(labelLive==YtsLive))/length(YtsLive))*100;
+        predictionSVMFake = (length(find(labelFake==YtsFake))/length(YtsFake))*100;
+        
+        
+scores_SVM_postcell{p} = score_posterior;    
+scores_SVMcell{p} = num2cell(score);
+Ytsscell{p} = Yts;
+Ytrscell{p} = Ytr;
+testPeople = [testPeople; testPerson];
+labelsSVMcell{p} = labelSVM;
+predictionAllSVM = [predictionAllSVM; predictionSVM];
+predictionAllSVMLive = [predictionAllSVMLive; predictionSVMLive];
+predictionAllSVMFake = [predictionAllSVMFake; predictionSVMFake];
+
+
 end
+
+predictionAverageSVM = sum(predictionAllSVM)/length(predictionAllSVM);
+        disp([num2str(predictionAverageSVM) '% Average SVM accuracy']);
+
+        predictionAverageSVMLive = sum(predictionAllSVMLive)/length(predictionAllSVMLive);
+        disp([num2str(predictionAverageSVMLive) '% Average Live SVM accuracy']);
+        predictionAverageSVMFake = sum(predictionAllSVMFake)/length(predictionAllSVMFake);
+        disp([num2str(predictionAverageSVMFake) '% Average Fake SVM accuracy']);

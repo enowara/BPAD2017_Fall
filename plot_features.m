@@ -1,4 +1,4 @@
-% plot features / patterns present in live vs attack faces
+  p% plot features / patterns present in live vs attack faces
 
 folderResults = '/home/ewa/Dropbox (Rice Scalable Health)/DocumentsUbuntu/Liveness_Detection_Security/Results/BPAD2017_Fall/Live_vs_Fake_ROI/';
 datte = '10-08';
@@ -12,7 +12,9 @@ title('SNR goodness of each ROIs HR')
 xlabel('HR of each ROI')
 ylabel('SNR goodness')
 for f = 1:3
-    for m = 1%:10%:85
+    for m = 1:25%85
+        subplot(5,5,m)
+        hold on
         % load HR_vec, SNR_goodness
         load([folderResults datte '/' '3DMAD-' '-' num2str(f) '-' num2str(m) '.mat'], 'HR_vec', 'SNR_goodness')
         if f == 1 || f == 2
@@ -34,7 +36,9 @@ title('SNR unity of each ROIs HR')
 xlabel('HR of each ROI')
 ylabel('SNR unity')
 for f = 1:3
-    for m = 1:10%:85
+    for m = 1:25%85
+        subplot(5,5,m)
+        hold on
         % load HR_vec, SNR_2
         load([folderResults datte '/' '3DMAD-' '-' num2str(f) '-' num2str(m) '.mat'], 'HR_vec', 'SNR_2')
         if f == 1 || f == 2
@@ -54,8 +58,10 @@ title('difference between median ROI HR and ROI HR')
 xlabel('each ROI')
 ylabel('difference between HR ROI and HR ROI median')
 for f = 1:3
-    for m = 1:10%:85
+    for m = 1:25%85
         % load diff_HR_med
+        subplot(5,5,m)
+        hold on
         load([folderResults datte '/' '3DMAD-' '-' num2str(f) '-' num2str(m) '.mat'], 'diff_HR_med')
         if f == 1 || f == 2
             plot([1:length(diff_HR_med)], diff_HR_med, '*b')
@@ -71,7 +77,9 @@ end
 figure,
 hold on
 for f = 1:3
-    for m = 1:10%:85
+    for m = 1:25%85
+        subplot(5,5,m)
+        hold on
         % load diff_HR_ave
         load([folderResults datte '/' '3DMAD-' '-' num2str(f) '-' num2str(m) '.mat'], 'diff_HR_ave')
         if f == 1 || f == 2
