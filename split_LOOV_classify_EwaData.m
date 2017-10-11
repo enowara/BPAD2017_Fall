@@ -118,9 +118,9 @@ for p = 1:pEnd
 %     Sts_idx_A1 = intersect(Sts_idx,order_Attack);
 %     [~,Sts_idx_A] = ismember(Sts_idx_A1, order_Attack);
     
-    check_L = MlistL(Str_idx)
+    check_L = MlistL(Str_idx);
     
-    check_A = MlistA(Str_idx)
+    check_A = MlistA(Str_idx);
 
 %       f_test = testPerson;
     
@@ -201,13 +201,15 @@ for p = 1:pEnd
         %% shuffle
         XtrtsTemp = [PdataL; PdataF];
         YtrtsTemp = [YL; YF];
-        XYtrtsTemp = [XtrtsTemp YtrtsTemp];
+        Mlist = [MlistL; MlistA];
+        XYtrtsTempM = [XtrtsTemp YtrtsTemp Mlist]; % add M matrix of list of idx
         s = RandStream('mt19937ar','Seed',sum(100*clock));
-        orderTrtsi = randperm(s, size(XYtrtsTemp,1));
-        XYtrts = XYtrtsTemp(orderTrtsi,:);
+        orderTrtsi = randperm(s, size(XYtrtsTempM,1));
+        XYtrtsM = XYtrtsTempM(orderTrtsi,:);
 % 
-        Xtrts = XYtrts(:,1:(end-1));  % is 582, should be 1200?
-        Ytrts = XYtrts(:,end);
+        Xtrts = XYtrtsM(:,1:(end-4));
+        Ytrts = XYtrtsM(:,(end-2));  % is 582, should be 1200?
+        Mtrts = XYtrtsM(:,end-1:end);
         
         % split into tr and ts 80:20
         
@@ -216,6 +218,10 @@ for p = 1:pEnd
         
         Ytr = Ytrts(1:floor(0.8*size(Xtrts)), :);
         Yts = Ytrts(floor(0.8*size(Xtrts))+1:end, :);  
+        
+        
+        Mtr = Mtrts(1:floor(0.8*size(Xtrts)), :);
+        Mts = Mtrts(floor(0.8*size(Xtrts))+1:end, :);  
         % combine live and fake
         
 %         % if want balanced classes
@@ -261,6 +267,15 @@ for p = 1:pEnd
         predictionSVMLive = (length(find(labelLive==YtsLive))/length(YtsLive))*100;
         predictionSVMFake = (length(find(labelFake==YtsFake))/length(YtsFake))*100;
         
+        % find where attack was misclassified as live 
+        missSVMLive = find(labelLive~=YtsLive); % index from ts that was misclassified
+        % find where live was misclassified as attack
+        missSVMFake = find(labelFake~=YtsFake);
+        
+        miss_Live_vids = Mts(missSVMLive,:);
+        miss_Fake_vids = Mts(missSVMFake,:);
+        
+
         
 scores_SVM_postcell{p} = score_posterior;    
 scores_SVMcell{p} = num2cell(score);

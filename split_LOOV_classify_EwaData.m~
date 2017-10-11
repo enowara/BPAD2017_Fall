@@ -118,9 +118,9 @@ for p = 1:pEnd
 %     Sts_idx_A1 = intersect(Sts_idx,order_Attack);
 %     [~,Sts_idx_A] = ismember(Sts_idx_A1, order_Attack);
     
-    check_L = MlistL(Str_idx)
+    check_L = MlistL(Str_idx);
     
-    check_A = MlistA(Str_idx)
+    check_A = MlistA(Str_idx);
 
 %       f_test = testPerson;
     
@@ -183,11 +183,11 @@ for p = 1:pEnd
         diff_HR_med_All_attack_p_ts, diff_HR_ave_All_attack_p_ts];
 
     %% 20:80 instead of LOOV
-    PdataL = [HR_vec_All_Live1, SNR_goodness_All_Live1, SNR_2_All_Live1, ...
-        diff_HR_med_All_Live1, diff_HR_ave_All_Live1];
+    PdataL = [HR_vec_All_Live1, SNR_goodness_All_Live1];%, SNR_2_All_Live1, ...
+%         diff_HR_med_All_Live1, diff_HR_ave_All_Live1];
     
-    PdataF = [HR_vec_All_Attack, SNR_goodness_All_Attack, SNR_2_All_Attack, ...
-        diff_HR_med_All_Attack, diff_HR_ave_All_Attack];
+    PdataF = [HR_vec_All_Attack, SNR_goodness_All_Attack];%, SNR_2_All_Attack, ...
+%         diff_HR_med_All_Attack, diff_HR_ave_All_Attack];
     
     %% append labels
         YL = ones(size(PdataL,1), 1);
@@ -201,19 +201,23 @@ for p = 1:pEnd
         %% shuffle
         XtrtsTemp = [PdataL; PdataF];
         YtrtsTemp = [YL; YF];
-        XYtrtsTemp = [XtrtsTemp YtrtsTemp];
+        Mlist = [MlistL; MlistA];
+        XYtrtsTempM = [XtrtsTemp YtrtsTemp Mlist]; % add M matrix of list of idx
         s = RandStream('mt19937ar','Seed',sum(100*clock));
-        orderTrtsi = randperm(s, size(XYtrtsTemp,1));
-        XYtrts = XYtrtsTemp(orderTrtsi,:);
+        orderTrtsi = randperm(s, size(XYtrtsTempM,1));
+        XYtrtsM = XYtrtsTempM(orderTrtsi,:);
 % 
-        Xtrts = XYtrts(:,1:(end-1));  % is 582, should be 1200?
-        Ytrts = XYtrts(:,end);
+        Xtrts = XYtrts(:,1:(end-4));
+        Ytrts = XYtrts(:,(end-3));  % is 582, should be 1200?
+        Mtrts = XYtrts(:,end-2:end);
         
         % split into tr and ts 80:20
         
-        Xtr = Xtrts(1,floor(0.8*size(Xtrts)), :);
-        Xt = Xtrts(1,floor(0.8*size(Xtrts)), :);  
-
+        Xtr = Xtrts(1:floor(0.8*size(Xtrts)), :);
+        Xts = Xtrts(floor(0.8*size(Xtrts))+1:end, :);  
+        
+        Ytr = Ytrts(1:floor(0.8*size(Xtrts)), :);
+        Yts = Ytrts(floor(0.8*size(Xtrts))+1:end, :);  
         % combine live and fake
         
 %         % if want balanced classes
@@ -241,7 +245,7 @@ for p = 1:pEnd
 % call a classifier function and save result fHR_vec_All_Live1or each p run
 
 % SVM,put in a fct l8r
-        SVMModel = fitcsvm(Xtr,Ytr,'KernelFunction','rbf','Standardize',false);
+        SVMModel = fitcsvm(Xtr,Ytr,'KernelFunction','linear','Standardize',false);
         [labelSVM,score] = predict(SVMModel,Xts);
         predictionSVM = (length(find(labelSVM==Yts))/length(Yts))*100;
         
@@ -259,6 +263,10 @@ for p = 1:pEnd
         predictionSVMLive = (length(find(labelLive==YtsLive))/length(YtsLive))*100;
         predictionSVMFake = (length(find(labelFake==YtsFake))/length(YtsFake))*100;
         
+        % find where attack was misclassified as live 
+        missSVMLive = find(labelLive~=YtsLive); % index from ts that was misclassified
+        % find where live was misclassified as attack
+        missSVMLive = find(labelFake~=YtsFake);
         
 scores_SVM_postcell{p} = score_posterior;    
 scores_SVMcell{p} = num2cell(score);
