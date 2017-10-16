@@ -40,7 +40,7 @@ for f = 1:3
         % load
         load([ '3DMAD-' '-' num2str(f) '-' num2str(m) '.mat'], ...
             'HR_vec', 'SNR_goodness', 'SNR_2', 'diff_HR_med', 'diff_HR_ave')
-        if f == 1
+        if f == 1 
             HR_vec_All_Live1 = [HR_vec_All_Live1; HR_vec'];
             SNR_goodness_All_Live1 = [SNR_goodness_All_Live1; SNR_goodness'];
             SNR_2_All_Live1 = [SNR_2_All_Live1; SNR_2'];
@@ -48,12 +48,15 @@ for f = 1:3
             diff_HR_ave_All_Live1 = [diff_HR_ave_All_Live1; diff_HR_ave'];
             
             MlistL = [MlistL; [f m]];
-            
+        elseif f==2
             HR_vec_All_Live2 = [HR_vec_All_Live2; HR_vec'];
             SNR_goodness_All_Live2 = [SNR_goodness_All_Live2; SNR_goodness'];
             SNR_2_All_Live2 = [SNR_2_All_Live2; SNR_2'];
             diff_HR_med_All_Live2 = [diff_HR_med_All_Live2; diff_HR_med'];
             diff_HR_ave_All_Live2 = [diff_HR_ave_All_Live2; diff_HR_ave'];
+
+            MlistL = [MlistL; [f m]];
+
         elseif f == 3
             HR_vec_All_Attack = [HR_vec_All_Attack; HR_vec'];
             SNR_goodness_All_Attack = [SNR_goodness_All_Attack; SNR_goodness'];

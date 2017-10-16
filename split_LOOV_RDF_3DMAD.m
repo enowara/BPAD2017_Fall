@@ -46,7 +46,7 @@ labelsSVM = [];
 predtests = [];
 Ytss = [];
 
-for p = 1:pEnd
+for p = 1%:pEnd
        
     testPerson1 = startTestPerson1(p):endTestPerson1(p);
     if isempty(startTestPerson2) ~= 1
@@ -175,8 +175,8 @@ for p = 1:pEnd
         
         Mlist = [MlistL; MlistA];
 
-        Mtr = Mlist(Sts_idx);
-        Mts = Mlist(Str_idx);
+        Mtr = find(ismember(Mlist(:,2), Str_idx));
+        Mts = find(ismember(Mlist(:,2), Sts_idx));
 
         % combine live and fake
         
@@ -232,7 +232,12 @@ for p = 1:pEnd
 
         predictionRDFFake = (length(find(predtestFake==YtsFake))/length(YtsFake))*100;
 
+        %% relate misclassified indices to which video it was
 
+
+        all_miss = find(labelRDF~=Yts); % all misclassified test observations
+        missed_vids_idx = Mts(all_miss,:);
+        missed_vids = Mlist(missed_vids_idx, :);
 %         all_miss = find(labelRDF~=Yts);
 %         miss_vids = Mts(:,all_miss);
 %         live_miss = [];
@@ -255,6 +260,7 @@ testPeople = [testPeople; testPerson];
 predictionAllRDF{p} = predictionRDF; 
 predictionAllRDFLive{p} = predictionRDFLive; 
 predictionAllRDFFake{p} = predictionRDFFake;
+missed_vids_All{p} = missed_vids;
 
 
 

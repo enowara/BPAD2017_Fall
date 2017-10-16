@@ -46,7 +46,7 @@ labelsSVM = [];
 predtests = [];
 Ytss = [];
 
-for p = 1:pEnd
+for p = 1%:pEnd
        
     testPerson1 = startTestPerson1(p):endTestPerson1(p);
     if isempty(startTestPerson2) ~= 1
@@ -158,9 +158,9 @@ for p = 1:pEnd
     
     % all features together
     
-    PdataLtr = [HR_vec_All_live_p_tr, SNR_goodness_All_live_p_tr, SNR_2_All_live_p_tr, ...
-%         diff_HR_med_All_live_p_tr, diff_HR_ave_All_live_p_tr];
-    PdataFtr = [HR_vec_All_attack_p_tr, SNR_goodness_All_attack_p_tr,SNR_2_All_attack_p_tr,...
+    PdataLtr = [HR_vec_All_live_p_tr, SNR_goodness_All_live_p_tr];%, SNR_2_All_live_p_tr, ...
+%        diff_HR_med_All_live_p_tr, diff_HR_ave_All_live_p_tr];
+    PdataFtr = [HR_vec_All_attack_p_tr, SNR_goodness_All_attack_p_tr];%, SNR_2_All_attack_p_tr,...
 %         diff_HR_med_All_attack_p_tr, diff_HR_ave_All_attack_p_tr];
     PdataLts = [HR_vec_All_live_p_ts, SNR_goodness_All_live_p_ts];%, SNR_2_All_live_p_ts, ...
 %         diff_HR_med_All_live_p_ts, diff_HR_ave_All_live_p_ts];
@@ -175,8 +175,8 @@ for p = 1:pEnd
         
         Mlist = [MlistL; MlistA];
 
-        Mtr = Mlist(Sts_idx);
-        Mts = Mlist(Str_idx);
+        Mtr = find(ismember(Mlist(:,2), Str_idx));
+        Mts = find(ismember(Mlist(:,2), Sts_idx));
 
         % combine live and fake
         
@@ -232,7 +232,11 @@ for p = 1:pEnd
 
         predictionRDFFake = (length(find(predtestFake==YtsFake))/length(YtsFake))*100;
 
+        %% relate misclassified indices to which video it was
 
+
+        all_miss = find(labelRDF~=Yts); % all misclassified test observations
+        missed_vids = Mts(all_miss,:);
 %         all_miss = find(labelRDF~=Yts);
 %         miss_vids = Mts(:,all_miss);
 %         live_miss = [];
@@ -255,6 +259,7 @@ testPeople = [testPeople; testPerson];
 predictionAllRDF{p} = predictionRDF; 
 predictionAllRDFLive{p} = predictionRDFLive; 
 predictionAllRDFFake{p} = predictionRDFFake;
+missed_vids_All{p} = missed_vids;
 
 
 

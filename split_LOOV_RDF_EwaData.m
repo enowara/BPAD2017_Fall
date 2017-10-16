@@ -53,7 +53,12 @@ for p = 1:pEnd
     
 
     %% TESTING
-    
+    LiveIdx = [];
+    for mm = [7,8,13,14,19,20] -2;
+%         mm
+        LiveIdx = [LiveIdx (mm-1)*6+1:mm*6];% [[7*(1:6):8*6], [13*6:14*6], [20*6:19*6]]
+    end
+        FakeIdx = setdiff([1:108], LiveIdx);
 %     find testing people indices     
     Sts_idx = testPerson;
     Sts_idx_L = Sts_idx;
@@ -120,12 +125,7 @@ for p = 1:pEnd
 
     
     %% TRAINING
-    LiveIdx = [];
-    for mm = [7,8,13,14,19,20] -2;
-%         mm
-        LiveIdx = [LiveIdx (mm-1)*6+1:mm*6];% [[7*(1:6):8*6], [13*6:14*6], [20*6:19*6]]
-    end
-        FakeIdx = setdiff([1:108], LiveIdx);
+    
     
     Str_idx = trainPeople;
     Str_idx_Ltemp = intersect(Str_idx, LiveIdx);
@@ -210,50 +210,50 @@ for p = 1:pEnd
 %         diff_HR_med_All_attack_p_ts, diff_HR_ave_All_attack_p_ts];
 
     %% 20:80 instead of LOOV
-%     PdataL = [HR_vec_All_Live1, SNR_goodness_All_Live1];%, SNR_2_All_Live1, ...
-% %         diff_HR_med_All_Live1, diff_HR_ave_All_Live1];
-%     
-%     PdataF = [HR_vec_All_Attack, SNR_goodness_All_Attack];%, SNR_2_All_Attack, ...
+    PdataL = [HR_vec_All_Live1, SNR_goodness_All_Live1];%, SNR_2_All_Live1, ...
+%         diff_HR_med_All_Live1, diff_HR_ave_All_Live1];
+    
+    PdataF = [HR_vec_All_Attack, SNR_goodness_All_Attack];%, SNR_2_All_Attack, ...
 %         diff_HR_med_All_Attack, diff_HR_ave_All_Attack];
     
     %% append labels
-%         YL = ones(size(PdataL,1), 1);
-%         YF = zeros(size(PdataF,1), 1);
+        YL = ones(size(PdataL,1), 1);
+        YF = zeros(size(PdataF,1), 1);
         
         % if LOOV
-        YtrL = ones(size(PdataLtr,1), 1);
-        YtrF = zeros(size(PdataFtr,1), 1);
-        YtsL = ones(size(PdataLts,1), 1);
-        YtsF = zeros(size(PdataFts,1), 1);
-        
-        Xtr = [PdataLtr; PdataFtr];
-        Xts = [PdataLts; PdataFts];
-        Ytr = [YtrL; YtrF];
-        Yts = [YtsL; YtsF];
+%         YtrL = ones(size(PdataLtr,1), 1);
+%         YtrF = zeros(size(PdataFtr,1), 1);
+%         YtsL = ones(size(PdataLts,1), 1);
+%         YtsF = zeros(size(PdataFts,1), 1);
+%         
+%         Xtr = [PdataLtr; PdataFtr];
+%         Xts = [PdataLts; PdataFts];
+%         Ytr = [YtrL; YtrF];
+%         Yts = [YtsL; YtsF];
         %% shuffle
-%         XtrtsTemp = [PdataL; PdataF];
-%         YtrtsTemp = [YL; YF];
-%         Mlist = [MlistL; MlistA];
-%         XYtrtsTempM = [XtrtsTemp YtrtsTemp Mlist]; % add M matrix of list of idx
-%         s = RandStream('mt19937ar','Seed',sum(100*clock));
-%         orderTrtsi = randperm(s, size(XYtrtsTempM,1));
-%         XYtrtsM = XYtrtsTempM(orderTrtsi,:);
-% 
-%         Xtrts = XYtrtsM(:,1:(end-4));
-%         Ytrts = XYtrtsM(:,(end-2));  % is 582, should be 1200?
-%         Mtrts = XYtrtsM(:,end-1:end);
+        XtrtsTemp = [PdataL; PdataF];
+        YtrtsTemp = [YL; YF];
+        Mlist = [MlistL; MlistA];
+        XYtrtsTempM = [XtrtsTemp YtrtsTemp Mlist]; % add M matrix of list of idx
+        s = RandStream('mt19937ar','Seed',sum(100*clock));
+        orderTrtsi = randperm(s, size(XYtrtsTempM,1));
+        XYtrtsM = XYtrtsTempM(orderTrtsi,:);
+
+        Xtrts = XYtrtsM(:,1:(end-4));
+        Ytrts = XYtrtsM(:,(end-2));  % is 582, should be 1200?
+        Mtrts = XYtrtsM(:,end-1:end);
         
 %         split into tr and ts 80:20
         
-%         Xtr = Xtrts(1:floor(0.8*size(Xtrts)), :);
-%         Xts = Xtrts(floor(0.8*size(Xtrts))+1:end, :);  
+        Xtr = Xtrts(1:floor(0.8*size(Xtrts)), :);
+        Xts = Xtrts(floor(0.8*size(Xtrts))+1:end, :);  
 %         
-%         Ytr = Ytrts(1:floor(0.8*size(Xtrts)), :);
-%         Yts = Ytrts(floor(0.8*size(Xtrts))+1:end, :);  
+        Ytr = Ytrts(1:floor(0.8*size(Xtrts)), :);
+        Yts = Ytrts(floor(0.8*size(Xtrts))+1:end, :);  
 %         
 %         
-%         Mtr = Mtrts(1:floor(0.8*size(Xtrts)), :);
-%         Mts = Mtrts(floor(0.8*size(Xtrts))+1:end, :);  
+        Mtr = Mtrts(1:floor(0.8*size(Xtrts)), :);
+        Mts = Mtrts(floor(0.8*size(Xtrts))+1:end, :);  
 %         combine live and fake
         
 %         % if want balanced classes
@@ -275,6 +275,8 @@ for p = 1:pEnd
         
 %         Xtr = Xtr(:,idx_feature);
 %         Xts = Xts(:,idx_feature);
+
+
 %% train a classifier or threshold
 
 % call a classifier function and save result fHR_vec_All_Live1or each p run
@@ -308,8 +310,18 @@ for p = 1:pEnd
 
         predictionRDFFake = (length(find(predtestFake==YtsFake))/length(YtsFake))*100;
 
+%% relate misclassified indices to which video it was
+%         Mlist = [MlistL; MlistA];
 
-%         all_miss = find(labelRDF~=Yts);
+        all_miss = find(labelRDF~=Yts); % all misclassified test observations
+        missed_vids = Mts(all_miss,:);
+%         idx_shuffled_Live = find(ismember(Mts(:,1),Sts_idx_A));
+%         idx_shuffled_Attack = find(ismember(Mts(:,1),Sts_idx_L));
+        
+%         fake_miss = [fake_miss; 
+% Str_idx_A
+% Str_idx_L
+
 %         miss_vids = Mts(all_miss,:);
 %         live_miss = [];
 %         fake_miss = [];
@@ -331,7 +343,7 @@ testPeople = [testPeople; testPerson];
 predictionAllRDF{p} = predictionRDF; 
 predictionAllRDFLive{p} = predictionRDFLive; 
 predictionAllRDFFake{p} = predictionRDFFake;
-
+missed_vids_All{p} = missed_vids;
 end
 
 predictionAverageRDF = sum(cell2mat(predictionAllRDF))/length(predictionAllRDF);

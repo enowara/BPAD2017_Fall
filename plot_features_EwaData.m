@@ -19,10 +19,11 @@ xlabel('HR of each ROI')
 ylabel('SNR goodness')
 c1 = 0;
 c2 = 0;
-for f = 6%:8
-    for m = 3
-%         subplot(3,2,m)
-        title('live vs attack handheld')
+c=1;
+for f = [5,6, 12, 13, 14, 20]
+    subplot(3,2,c)
+    for m = 1:6
+        title(num2str(f))%'live vs attack handheld')
         hold on
         % load HR_vec, SNR_goodness
         load(['EwaData-' '-' num2str(f) '-' num2str(m) '.mat'], 'HR_vec', 'SNR_goodness')
@@ -34,6 +35,8 @@ for f = 6%:8
             c2 = c2+1;
         end
     end
+            c =c +1;
+
 end
 % save % fig
 % close
