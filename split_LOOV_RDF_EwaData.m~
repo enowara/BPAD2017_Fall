@@ -73,30 +73,22 @@ FixedIdx = [];
     % if only hand 
 
     allPeople = setdiff(allPeople, FixedIdx);
-    testPerson = setdiff(testPersonInit,FixedIdx);
+    testPerson = testPersonInit;
     trainPeople = setdiff(allPeople, testPerson); 
     
     % if only fixed
     allPeople = intersect(allPeople, FixedIdx);
-    testPerson = intersect(testPersonInit, FixedIdx);
-    trainPeople = setdiff(allPeople, testPerson); 
     
-    
-%     % if splitting only ts
-% 
-%     % if all 
-%     allPeople = startTestPerson1(1):endTestPerson1(end); 
-%     testPerson = testPersonInit;
-%     trainPeople = setdiff(allPeople, testPerson); 
-%     % if only hand 
-%     allPeople = setdiff(allPeople, FixedIdx);
-%     testPerson = testPersonInit;
-%     trainPeople = setdiff(allPeople, testPerson); 
-% 
-%     % if only fixed
-%     allPeople = intersect(allPeople, FixedIdx);
-%     testPerson = testPersonInit;
-%     trainPeople = setdiff(allPeople, testPerson); 
+    % if splitting only ts
+
+    % if all 
+    allPeople = startTestPerson1(1):endTestPerson1(end); 
+    % if only hand 
+
+    allPeople = setdiff(allPeople, FixedIdx);
+
+    % if only fixed
+    allPeople = intersect(allPeople, FixedIdx);
     %% TESTING
     LiveIdx = [];
     for mm = [7,8,13,14,19,20] -2;
