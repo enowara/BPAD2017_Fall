@@ -268,14 +268,24 @@ for p = 1:pEnd
         predictionSVMFake = (length(find(labelFake==YtsFake))/length(YtsFake))*100;
         
         % find where attack was misclassified as live 
-        missSVMLive = find(labelLive~=YtsLive); % index from ts that was misclassified
+%         missSVMLive = find(labelLive~=YtsLive); % index from ts that was misclassified
         % find where live was misclassified as attack
-        missSVMFake = find(labelFake~=YtsFake);
+%         missSVMFake = find(labelFake~=YtsFake);
         
-        miss_Live_vids = Mts(missSVMLive,:);
-        miss_Fake_vids = Mts(missSVMFake,:);
+        all_miss = find(labelSVM~=Yts);
+        miss_vids = Mts(all_miss,:);
+        live_miss = [];
+        fake_miss = [];
         
+        for ii = 1:length(all_miss)
+            if labelSVM(all_miss(ii)) == 1 % fake misclass as live
+                fake_miss = [fake_miss; Mts(all_miss(ii),:)];% these are more severe
+            elseif labelSVM(all_miss(ii)) == 0 % live misclass as  fake
+                live_miss = [live_miss; Mts(all_miss(ii),:)];
+            end
+        end
 
+        % plot features of misclassified videos
         
 scores_SVM_postcell{p} = score_posterior;    
 scores_SVMcell{p} = num2cell(score);

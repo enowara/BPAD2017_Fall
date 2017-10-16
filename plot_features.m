@@ -13,15 +13,16 @@ cd '10_10/'
 %% SNR_goodness
 figure,
 hold on
-title('SNR goodness of each ROIs HR') 
+% title('SNR goodness of each ROIs HR') 
 % legend('live', 'attack')
 xlabel('HR of each ROI')
 ylabel('SNR goodness')
 c1 = 0;
 c2 = 0;
-for f = 3:20 
-    for m = 1:6
-        subplot(3,2,m)
+for f = 6%:8
+    for m = 3
+%         subplot(3,2,m)
+        title('live vs attack handheld')
         hold on
         % load HR_vec, SNR_goodness
         load(['EwaData-' '-' num2str(f) '-' num2str(m) '.mat'], 'HR_vec', 'SNR_goodness')
@@ -45,8 +46,8 @@ title('SNR unity of each ROIs HR')
 % legend('live', 'attack')
 xlabel('HR of each ROI')
 ylabel('SNR unity')
-for f = 3:20 
-    for m = 1:6
+for f = 20
+    for m = 2:3
         subplot(3,2,m)
         hold on
         % load HR_vec, SNR_2
@@ -69,8 +70,8 @@ title('difference between median ROI HR and ROI HR')
 % legend('live', 'attack')
 xlabel('each ROI')
 ylabel('difference between HR ROI and HR ROI median')
-for f = 3:20 
-    for m = 1:6
+for f = 20
+    for m = 2:3
         % load diff_HR_med
         subplot(3,2,m)
         hold on
@@ -90,8 +91,8 @@ end
 
 figure,
 hold on
-for f = 3:20 
-    for m = 1:6
+for f = 20
+    for m = 2:3
         subplot(3,2,m)
         hold on
         % load diff_HR_ave
@@ -111,5 +112,7 @@ xlabel('each ROI')
 ylabel('difference between HR ROI and HR spatial average')
 % save % fig
 % close
+
+cd '/home/ewa/Dropbox (Rice Scalable Health)/DocumentsUbuntu/Liveness_Detection_Security/Code/BPAD2017_Fall'
 
 
