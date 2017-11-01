@@ -46,7 +46,7 @@ labelsSVM = [];
 predtests = [];
 Ytss = [];
 
-for p = 1%:pEnd
+for p = 1:pEnd
        
     testPerson1 = startTestPerson1(p):endTestPerson1(p);
     if isempty(startTestPerson2) ~= 1
@@ -270,10 +270,11 @@ predictionAverageRDF = sum(cell2mat(predictionAllRDF))/length(predictionAllRDF);
         disp([num2str(predictionAverageRDF) '% Average RDF accuracy']);
 
         predictionAverageRDFLive = sum(cell2mat(predictionAllRDFLive))/length(predictionAllRDFLive);
-        disp([num2str(predictionAverageRDFLive) '% Average RDF SVM accuracy']);
+        disp([num2str(predictionAverageRDFLive) '% Average Live RDF accuracy']);
         predictionAverageRDFFake = sum(cell2mat(predictionAllRDFFake))/length(predictionAllRDFFake);
         disp([num2str(predictionAverageRDFFake) '% Average Fake RDF accuracy']);
         
-        
+ save([saveFolder '3DMAD_RDF.mat'], 'scores_RDFcell', 'Ytsscell', 'Ytrscell', ...
+ 'testPeople', 'predictionAllRDF', 'predictionAllRDFLive', 'predictionAllRDFFake', 'missed_vids_All')       
         
         

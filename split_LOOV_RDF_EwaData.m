@@ -64,22 +64,23 @@ FixedIdx = [];
     end
 
 
-    % if splitting both tr and ts
-
-    % if all 
+    %% if splitting both tr and ts into hand vs fixed
+% 
+% % %     % if all 
     allPeople = startTestPerson1(1):endTestPerson1(end); 
     testPerson = testPersonInit;
     trainPeople = setdiff(allPeople, testPerson); 
-    % if only hand 
-
-    allPeople = setdiff(allPeople, FixedIdx);
-    testPerson = setdiff(testPersonInit,FixedIdx);
-    trainPeople = setdiff(allPeople, testPerson); 
-    
-    % if only fixed
-    allPeople = intersect(allPeople, FixedIdx);
-    testPerson = intersect(testPersonInit, FixedIdx);
-    trainPeople = setdiff(allPeople, testPerson); 
+% %     
+% % %     % if only hand 
+% % 
+%     allPeople = setdiff(allPeople, FixedIdx);
+%     testPerson = setdiff(testPersonInit,FixedIdx);
+%     trainPeople = setdiff(allPeople, testPerson); 
+%     
+% %     % if only fixed
+%     allPeople = intersect(allPeople, FixedIdx);
+%     testPerson = intersect(testPersonInit, FixedIdx);
+%     trainPeople = setdiff(allPeople, testPerson); 
     
     
 %     % if splitting only ts
@@ -400,4 +401,4 @@ predictionAverageRDF = sum(cell2mat(predictionAllRDF))/length(predictionAllRDF);
         disp([num2str(predictionAverageRDFFake) '% Average Fake RDF accuracy']);
 
         
-        
+        save('RDF_EwaData_10_29.mat')

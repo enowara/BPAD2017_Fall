@@ -1,7 +1,18 @@
-function [PPG_filt, PPG_final, tracked_points, Fps, goodnessRatio_init] = mainGoodness(filename, fullPath2File, vid_phot, fileFormat, vid_start, vid_end, fullPath2Save, removeSpecular, numGrids, datte, xinput, yinput)
-specularThresh = 1000;
-% addpath('/homes/nowara/Documents/BioSignalsCode/matlabDocCode/altmany-export_fig-5be2ca4')
+%CONFIDENTIAL (C) Mitsubishi Electric Research Labs (MERL) 2017
+%Ewa Nowara
+%May 18 2017
 
+% add back to output PPG_final
+
+function [PPG_filt, tracked_points, Fps, goodnessRatio_init, freq, P_rawMean, P_raw] = ...
+    mainGoodness2(filename, fullPath2File, vid_phot, fileFormat, vid_start, ...
+    vid_end, fullPath2Save, removeSpecular, numGrids, datte, xinput, yinput, specularThresh, ...
+    numFrame, landmarks, landmark_path)
+
+
+% specularThresh = 1000;
+% addpath('/homes/nowara/Documents/BioSignalsCode/matlabDocCode/altmany-export_fig-5be2ca4')
+addpath('/media/ewa/SH/MERL_research/BioSignalsCode/matlabDocCode/sort_nat');
 % saveFolder = '/homes/nowara/Documents/BioSignalsResults/PreliminaryResults/AdjustedExposure_07_06/';
 % saveFolder = '/homes/nowara/Documents/BioSignalsResults/PreliminaryResults2/3_IRsources_07_13_thresh250/';
 
@@ -61,7 +72,7 @@ specularThresh = 1000;
 
 %% read in RGB or IR video
  % don't provide the end if you want to read in the whole video
-[vidSin_out, ~, Fps] = read_video(filename, fullPath2File, vid_phot, fileFormat, vid_start, vid_end); % check TODO
+[vidSin_out, ~, Fps] = read_video(filename, fullPath2File, vid_phot, fileFormat, vid_start, vid_end, numFrame); % check TODO
 
 % vidSin_out = vidSin_out(:,:,vid_start:end);
 
@@ -70,133 +81,142 @@ if isa(vidSin_out, 'uint8') ~= 1 && isa(vidSin_out, 'uint16') ~= 1
 end
     %% remove specularities
 firstFrame = (vidSin_out(:,:,1));
-faceDetector = vision.CascadeObjectDetector();  % initialize Viola Jones face detection, TODO later replace with better face detection
-bbox = step(faceDetector, firstFrame);
-    
-%  figure, imshow(firstFrame,[])
-%  pause()
- 
-if sum(bbox(:)) > 0
-    x_init = [bbox(1), bbox(1), (bbox(1)+bbox(3)), (bbox(1)+bbox(3))];
-    y_init = [bbox(2), (bbox(2) + bbox(4)), (bbox(2)+bbox(4)), bbox(2)];
-else 
-    disp('no face detected')
-    x_init = xinput;
-    y_init = yinput;
-    bbox = [x_init(1) y_init(1) (x_init(3) - x_init(1)) (y_init(2) - x_init(1))];
-end
-% n = numGrids;
-% numGrids = 10; % 5 x 5 or so total
-n = 75;%round((max(bbox(3), bbox(4)))/numGrids); % size of grid ROI from which to get PPG
-epoch_Half = 5; % in seconds
-vis = 0; % true=1, if on then tracker will display what the   
-    
-%     remove the last row and column of grids to make sure the raw PPG
-    % computation doesn't go too far beyond the boundary
-x = [x_init(1)-n, x_init(2)-n, x_init(3)+n, x_init(4)+n];
-y = [(y_init(1)-n), (y_init(2)+n), (y_init(3) +n), (y_init(4)-n)];
 
-if removeSpecular == 1
-    [NonSpecImgMask] = removeSpecularFun(firstFrame, specularThresh);  % removeSpecular is all 0! % FIX 
+% if no facial landmarks provided, use face detection
+if landmarks == 0
+    faceDetector = vision.CascadeObjectDetector();  % initialize Viola Jones face detection, TODO later replace with better face detection
+    bbox = step(faceDetector, firstFrame);
+    %     
+    % %  figure, imshow(firstFrame,[])
+    % %  pause()
+    %  
+    if sum(bbox(:)) > 0
+        x_init = [bbox(1), bbox(1), (bbox(1)+bbox(3)), (bbox(1)+bbox(3))];
+        y_init = [bbox(2), (bbox(2) + bbox(4)), (bbox(2)+bbox(4)), bbox(2)];
+    else 
+    %     disp('no face detected')
+        x_init = xinput;
+        y_init = yinput;
+    %     bbox = [x_init(1) y_init(1) (x_init(3) - x_init(1)) (y_init(2) - x_init(1))];
+    end
+    % n = numGrids;
+    % numGrids = 10; % 5 x 5 or so total
+    % n = 40;%round((max(bbox(3), bbox(4)))/numGrids); % size of grid ROI from which to get PPG
 
-    ROI_initFace = roipoly(firstFrame, x_init, y_init); % logical, binary mask that defines a ROI
-    ROInonSpec = NonSpecImgMask.*ROI_initFace;  
-else
-    ROInonSpec = roipoly(firstFrame, x_init, y_init); % logical, binary mask that defines a ROI
-end
-[init_gridsFace] = roi_2grid(ROInonSpec, n); % check TODO
-%     figure, imshow(ROI_initFace)
-%   figure, imshow(ROInonSpec)
-%     figure, imshow(firstFrame,[])
-%     hold on 
-%     plot(init_gridsFace(:,1), init_gridsFace(:,2), '*g')
-%     pause(2)
-% %     for ii = 1:25
-% %         plot(init_gridsFace(ii,1), init_gridsFace(ii,2), '*g')
-% %         pause(1)
-% %     end
-% %     
-% % %     plot(init_gridsFace(:,1), init_gridsFace(:,2), '*g')
-% %     saveas(gcf, [fullPath2Save '_Grids_' datte '.fig']) 
-% %     [imageData, alpha] = export_fig([fullPath2Save '_Grids_' datte], '-pdf', '-transparent', '-q101');
-% %     [imageData, alpha] = export_fig([fullPath2Save '_Grids_' datte], '-png', '-q101');
-%     close
-% 
-    ROI_initFace2 = roipoly(vidSin_out(:,:,1), x, y);
-if removeSpecular == 1
-    ROInonSpec2 = NonSpecImgMask.*ROI_initFace2;
-else
-    ROInonSpec2 = ROI_initFace2;
-end
-%     ROInonSpec2 = ROI_initFace2;
-%     init_gridsFace2Track = roi_2grid(ROInonSpec2, n); 
+    fw = max(x_init)-min(x_init); % face ROI width
+    fh = max(y_init)-min(y_init); % height
+
+    numPnts = (sqrt(numGrids)+1)^2;  % num of ROIs is (sqrt(numPnts) - 1)^2
+
+    % numPnts = numGrids;
+
+    n1 = round(fh/sqrt(numPnts));
+    n2 = round(fw/sqrt(numPnts)); % smaller
+
+    epoch_Half = 5; % in seconds
+    vis = 0; % true=1, if on then tracker will display what the   
+
+    %     remove the last row and column of grids to make sure the raw PPG
+        % computation doesn't go too far beyond the boundary
+    % x = [x_init(1), x_init(2), x_init(3)+n, x_init(4)+n];
+    % y = [(y_init(1)), (y_init(2)+n), (y_init(3) +n), (y_init(4))];
+
+    if removeSpecular == 1
+        [NonSpecImgMask] = removeSpecularFun(firstFrame, specularThresh);  % removeSpecular is all 0! % FIX 
+
+        ROI_initFace = roipoly(firstFrame, x_init, y_init); % logical, binary mask that defines a ROI
+        ROInonSpec = NonSpecImgMask.*ROI_initFace;  
+    else
+        ROInonSpec = roipoly(firstFrame, x_init, y_init); % logical, binary mask that defines a ROI
+    end
+    [init_gridsFace] = roi_2grid(ROInonSpec, n1, n2); % check TODO
     
-%     minI = min(vidSin_out(:));
-%     maxI = max(vidSin_out(:));
-%     vidSin_out_track = ((vidSin_out-minI).*255./(maxI-minI)); % this makes the image saturated
+    if isa(vidSin_out, 'uint16')
+        [tracked_points] = tracker(uint8((vidSin_out/4)), init_gridsFace, vis); % check other TODO's  % for now track using a single channel just for simplicity
+    else
+        [tracked_points] = tracker(vidSin_out, init_gridsFace, vis); % check other TODO's  % for now track using a single channel just for simplicity
+    end
     
-    [tracked_points] = tracker(uint8((vidSin_out/4)), init_gridsFace, n, vis); % check other TODO's  % for now track using a single channel just for simplicity
-%% recreate ICA grids
-% firstFrame = vidSin_out(:,:,vid_start);
-% % face ROI 
-% % x1 = [252 252 810 810];
-% % y1 = [358 1041 1041 358];
-% 
-%     faceDetector = vision.CascadeObjectDetector();  % initialize Viola Jones face detection, TODO later replace with better face detection
-%     bbox = step(faceDetector, firstFrame);
-% % % Jason forehead
-% % x = [146 146 744 744];
-% % y = [123 422 422 123];
-% 
-% if sum(bbox(:)) > 0
-%         x_init = [bbox(1), bbox(1), (bbox(1)+bbox(3)), (bbox(1)+bbox(3))];
-%         y_init = [bbox(2), (bbox(2) + bbox(4)), (bbox(2)+bbox(4)), bbox(2)];
-% else 
-%         disp('no face detected')
-% %         break
-% end
-%     
-%     numGrids = 5; % 5 x 5 or so total
-%     n = round((max(bbox(3), bbox(4)))/numGrids); % size of grid ROI from which to get PPG
-%     epoch_Half = 5; % in seconds
-%     vis = 0; % true=1, if on then tracker will display what the   
-%     
-%     % remove the last row and column of grids to make sure the raw PPG
-%     % computation doesn't go too far beyond the boundary
-%     x = [x_init(1), x_init(2), x_init(3) , x_init(4)];
-%     y = [y_init(1), y_init(2), y_init(3) , y_init(4)];
-% %     x = x_init;
-% %     y = y_init;
-% %     
-%     ROI_initFace = roipoly(firstFrame, x_init, y_init); % logical, binary mask that defines a ROI
-%     [init_gridsFace] = roi_2grid(ROI_initFace, n); % check TODO
-% 
-% % %     figure, imshow(ROI_initFace)
-%     figure, imshow(firstFrame,[])
-%     hold on 
-% %     plot(init_gridsFace(:,1), init_gridsFace(:,2), '*g')
-% %     for ii = 1:25
-% %         plot(init_gridsFace(ii,1), init_gridsFace(ii,2), '*g')
-% %         pause(1)
-% %     end
-% %     
-%     plot(init_gridsFace(:,1), init_gridsFace(:,2), '*g')
-%     saveas(gcf, [fullPath2Save '_Grids_' datte '.fig']) 
-%     [imageData, alpha] = export_fig([fullPath2Save '_Grids_' datte], '-pdf', '-transparent', '-q101');
-%     [imageData, alpha] = export_fig([fullPath2Save '_Grids_' datte], '-png', '-q101');
-%     close
-% 
-%     ROI_initFace2 = roipoly(vidSin_out(:,:,1), x, y);
-%     init_gridsFace2Track = roi_2grid(ROI_initFace2, n); 
-%     
-%     [tracked_points] = tracker(vidSin_out, init_gridsFace2Track, n, vis); % check other TODO's  % for now track using a single channel just for simplicity
+    % but if landmarks are provided use their location to define ROIs
+elseif landmarks == 1 
+    
+    % load landmarks,     % convert to correct format
+    addpath('/media/ewa/SH/MERL_research/BioSignalsCode/FacialMotion/')
+    [x_pnts, y_pnts] = plot_landmarks_on_img(landmark_path, fullPath2Save);
+    firstPoints1 = [x_pnts' y_pnts'];
+    
+    % define ROIs
+    addpath('/home/ewa/Dropbox (Rice Scalable Health)/DocumentsUbuntu/Liveness_Detection_Security/Code/BPAD2017_Fall/')
+    [finalImg, firstPoints_augmented1] = face_points_mask(firstPoints1, firstFrame);
+    [facialRegions] = generateFacialROIs_2(firstPoints_augmented1);
+    % plot ROIs on the face and landmarks
+    
+    figure, imshow(firstFrame,[])
+    hold on
+    for ii = 1:length(x_pnts)
+    plot(x_pnts(ii), y_pnts(ii), '*')
+%     pause()
+    end
+    
+    
+for i = 1:length(facialRegions)
+    pnts_plot = facialRegions{i};
+    plot(pnts_plot(:,1), pnts_plot(:,2), 'LineWidth', 2)
+%     title(num2str(i))
+%     pause()
+end
+%     pause()
+saveas(gcf, [fullPath2Save 'facial_ROIs' datte '.fig']) 
+[imageData, alpha] = export_fig([fullPath2Save 'facial_ROIs' datte], '-pdf', '-transparent', '-q101');
+[imageData, alpha] = export_fig([fullPath2Save 'facial_ROIs' datte], '-png', '-q101');
+close
+
+
+%% try tracking each facial ROI separately because they have different shape and size
+% then combine the tracked parts from each ROI
+tracked_points = [];
+for i = 1:length(facialRegions)
+    if isa(vidSin_out, 'uint16')
+        [tracked_points_init{i}] = tracker(uint8((vidSin_out/4)), facialRegions{i}, vis); % check other TODO's  % for now track using a single channel just for simplicity
+    else
+        [tracked_points_init{i}] = tracker(vidSin_out, facialRegions{i}, vis); % check other TODO's  % for now track using a single channel just for simplicity
+    end
+    
+    % combine
+    
+    pnts = facialRegions{i}; % points defining the ROI
+    mask_i = poly2mask(pnts(:,1), pnts(:,2), size(firstFrame,1), size(firstFrame,2));
+
+    mask_All{i} = mask_i; % save each ROI as a mask to use for PPG computations
+    
+    tracked_points = cat(2, tracked_points, (tracked_points_init{i}));
+    
+    
+end
+end
+
 %% PPG computation
 % numPointsExpectedFromPPG = (sqrt(size(tracked_points,2)) - 1)^2
+
+% right now have one too many rows and columns, so 25 grids instead of 16
 if removeSpecular == 1
-    [raw_PPG] = ignoreROI_raw_PPG(vidSin_out, tracked_points, n, specularThresh);
+    [raw_PPG] = ignoreROI_raw_PPG(vidSin_out, tracked_points, n1, n2, specularThresh, numGrids);
 else
-    [raw_PPG] = get_raw_PPG(vidSin_out, tracked_points, n); % Add a condition to ignore time points and grids which are exactly 0
+%     [raw_PPG] = get_raw_PPG(vidSin_out, tracked_points, n1, n2, numGrids); % Add a condition to ignore time points and grids which are exactly 0
+%     [raw_PPG] = get_raw_PPG_per_pixel(vidSin_out, tracked_points, n1, n2, numGrids); % Add a condition to ignore time points and grids which are exactly 0
+    [raw_PPG] = get_raw_PPG_ROI(vidSin_out, mask_All); % Add a condition to ignore time points and grids which are exactly 0
+
+
 end
+
+
+
+% for now just remove 0 vectors, but later have a better way of only
+% computing correct ROIs
+zero_vec_raw_PPG = find(raw_PPG(1,:) == 0);
+vec_keep_raw_PPG = setdiff([1:size(raw_PPG,2)], zero_vec_raw_PPG);
+
+raw_PPG = raw_PPG(:,vec_keep_raw_PPG);
 % subtract the mean and bandpass filter
 [PPG_filt] = procPPG(raw_PPG, Fps);
 
@@ -245,79 +265,79 @@ clear vidSin_out
 % 
 
 
-%% Goodness
-[thresh_AmpAbs1] = setAmpThresh(PPG_filt);
-
-epoch_Half = 5; % in seconds, duration of each time epoch, window within which goodness is computed is epoch*2
-% overlap_inint = epoch_Half;
-thresh_AmpRel = 8;
-% thresh_AmpAbs = 80000;
-betaFreq = 0.2;
-thresh_Goodn = 0.2;
-
-[goodnessRatio_init] = measureSNRgrid(P_raw, freq, thresh_Goodn);
+% %% Goodness
+% [thresh_AmpAbs1] = setAmpThresh(PPG_filt);
 % 
-% figure,
-% for k =1:size(P_raw,2)
-%     subplot(ceil(sqrt(size(P_raw,2))), ceil(sqrt(size(P_raw,2))), k)
-%     plot(freq, P_raw(:,k))
-%     [val, argF] = max(P_raw(:,k));
-%     freqMax = freq(argF);
-%     HR_est_k = freqMax*60;
-%     xticks(0:1:15)
-% %     plot in the title - SNR and est HR
-%     title(['SNR: ' num2str(goodnessRatio_init(k)) '  HR: ' num2str(HR_est_k)])
-% end
-
-[PPG_final, goodness_RatioVec] = finalPPG(PPG_filt, epoch_Half, Fps, thresh_AmpAbs1, betaFreq, thresh_Goodn);
-% figure, 
-% hold on
-% plot(PPG_final)
-% title('filtered averaged PPG')
-% xlabel('time [frames]')
-% ylabel('amplitude')
-% saveas(gcf, [fullPath2Save '_finalPPG_' datte '.fig']) 
-% [imageData, alpha] = export_fig([fullPath2Save '_finalPPG_' datte], '-pdf', '-transparent', '-q101');
-% [imageData, alpha] = export_fig([fullPath2Save '_finalPPG_' datte], '-png', '-q101');
-% close
-
-% figure,
-% hold on
-% plot(PPG_filt(:,k))
-% goodness_RatioVec - each row is a grid ROI value, each column is a time
-% window
-[freqFinal, PPG_final_spectrum] = frequencyPlot(PPG_final,Fps);   % some values are NaN
-
-% figure,
-% hold on
-% plot(P_raw(:,k))
-
-% figure, 
-% hold on
-% plot(freqFinal, PPG_final_spectrum)
-% xticks(0:1:15)
-% title('final PPG fft')
-% xlabel('frequency [Hz]')
-% ylabel('[power spectrum')
-% saveas(gcf, [fullPath2Save '_finalPPG_FFT_' datte '.fig']) 
-% [imageData, alpha] = export_fig([fullPath2Save '_finalPPG_FFT_' datte], '-pdf', '-transparent', '-q101');
-% [imageData, alpha] = export_fig([fullPath2Save '_finalPPG_FFT_' datte], '-png', '-q101');
-% close
-
-[goodnessRatio_init] = measureSNRgrid(P_raw, freq, thresh_Goodn); % SNR before goodness metric
-% [goodnessRatio_initOLD] = measureSNR(mean(P_raw,2), freq, thresh_Goodn);
-% mean(goodnessRatio_init) and goodnessRatio_initOLD are different values
-[goodnessRatio] = measureSNR(PPG_final_spectrum, freqFinal, thresh_Goodn); % SNR after goodness metric
-
-%% plot figures
-
+% epoch_Half = 5; % in seconds, duration of each time epoch, window within which goodness is computed is epoch*2
+% % overlap_inint = epoch_Half;
+% thresh_AmpRel = 8;
+% % thresh_AmpAbs = 80000;
+% betaFreq = 0.2;
+thresh_Goodn = 0.2;
+% 
+[goodnessRatio_init] = measureSNRgrid(P_raw, freq, thresh_Goodn);
+% % 
+% % figure,
+% % for k =1:size(P_raw,2)
+% %     subplot(ceil(sqrt(size(P_raw,2))), ceil(sqrt(size(P_raw,2))), k)
+% %     plot(freq, P_raw(:,k))
+% %     [val, argF] = max(P_raw(:,k));
+% %     freqMax = freq(argF);
+% %     HR_est_k = freqMax*60;
+% %     xticks(0:1:15)
+% % %     plot in the title - SNR and est HR
+% %     title(['SNR: ' num2str(goodnessRatio_init(k)) '  HR: ' num2str(HR_est_k)])
+% % end
+% 
+% [PPG_final, goodness_RatioVec] = finalPPG(PPG_filt, epoch_Half, Fps, thresh_AmpAbs1, betaFreq, thresh_Goodn);
+% % figure, 
+% % hold on
+% % plot(PPG_final)
+% % title('filtered averaged PPG')
+% % xlabel('time [frames]')
+% % ylabel('amplitude')
+% % saveas(gcf, [fullPath2Save '_finalPPG_' datte '.fig']) 
+% % [imageData, alpha] = export_fig([fullPath2Save '_finalPPG_' datte], '-pdf', '-transparent', '-q101');
+% % [imageData, alpha] = export_fig([fullPath2Save '_finalPPG_' datte], '-png', '-q101');
+% % close
+% 
+% % figure,
+% % hold on
+% % plot(PPG_filt(:,k))
+% % goodness_RatioVec - each row is a grid ROI value, each column is a time
+% % window
+% [freqFinal, PPG_final_spectrum] = frequencyPlot(PPG_final,Fps);   % some values are NaN
+% 
+% % figure,
+% % hold on
+% % plot(P_raw(:,k))
+% 
+% % figure, 
+% % hold on
+% % plot(freqFinal, PPG_final_spectrum)
+% % xticks(0:1:15)
+% % title('final PPG fft')
+% % xlabel('frequency [Hz]')
+% % ylabel('[power spectrum')
+% % saveas(gcf, [fullPath2Save '_finalPPG_FFT_' datte '.fig']) 
+% % [imageData, alpha] = export_fig([fullPath2Save '_finalPPG_FFT_' datte], '-pdf', '-transparent', '-q101');
+% % [imageData, alpha] = export_fig([fullPath2Save '_finalPPG_FFT_' datte], '-png', '-q101');
+% % close
+% 
+% [goodnessRatio_init] = measureSNRgrid(P_raw, freq, thresh_Goodn); % SNR before goodness metric
+% % [goodnessRatio_initOLD] = measureSNR(mean(P_raw,2), freq, thresh_Goodn);
+% % mean(goodnessRatio_init) and goodnessRatio_initOLD are different values
+% [goodnessRatio] = measureSNR(PPG_final_spectrum, freqFinal, thresh_Goodn); % SNR after goodness metric
+% 
+% %% plot figures
+% 
 save([fullPath2Save '_goodness_' datte '.mat']) % save everything
-
-% t = 1;
-% visualize_goodness(goodness_RatioVec, goodnessRatio_init, n, tracked_points, firstFrame, fullPath2Save, datte, init_gridsFace, t);
-% saveas(gcf, [fullPath2Save 'goodnessWeights' datte '.fig']) 
-% [imageData, alpha] = export_fig([fullPath2Save 'goodnessWeights' datte], '-pdf', '-transparent', '-q101');
-% [imageData, alpha] = export_fig([fullPath2Save 'goodnessWeights' datte], '-png', '-q101');
-% close
+% 
+% % t = 1;
+% % visualize_goodness(goodness_RatioVec, goodnessRatio_init, n, tracked_points, firstFrame, fullPath2Save, datte, init_gridsFace, t);
+% % saveas(gcf, [fullPath2Save 'goodnessWeights' datte '.fig']) 
+% % [imageData, alpha] = export_fig([fullPath2Save 'goodnessWeights' datte], '-pdf', '-transparent', '-q101');
+% % [imageData, alpha] = export_fig([fullPath2Save 'goodnessWeights' datte], '-png', '-q101');
+% % close
 
 end

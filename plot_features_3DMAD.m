@@ -11,21 +11,40 @@ cd '/home/ewa/Dropbox (Rice Scalable Health)/DocumentsUbuntu/Liveness_Detection_
 cd '10-08/'
 
 %% SNR_goodness
-figure,
-hold on
+% figure,
+% hold on
 % title('SNR goodness of each ROIs HR') 
 % legend('live', 'attack')
 xlabel('HR of each ROI')
 ylabel('SNR goodness')
 c1 = 0;
 c2 = 0;
-for f = 1:3
-    for m = 1:85
-%         subplot(3,2,m)
-        title('live vs attack handheld')
+for p = 1:length(missed_vids_All)
+missed_vid_p = missed_vids_All{p};
+figure,
+hold on,
+for pp = 1:length(missed_vid_p(:,1))
+ f = missed_vid_p(pp,1);%1:3
+     m = missed_vid_p(pp,2);%1:85
+     
+     if f == 1 
+         HR_vec = HR_vec_All_Live1(m,:);
+         SNR_goodness = SNR_goodness_All_Live1(m,:);
+     elseif f == 2
+         HR_vec = HR_vec_All_Live2(m,:);
+         SNR_goodness = SNR_goodness_All_Live2(m,:);
+     elseif f == 3
+         HR_vec = HR_vec_All_Attack(m,:);    
+         SNR_goodness = SNR_goodness_All_Attack(m,:);
+     end
+         
+
+        subplot(ceil(sqrt(length(missed_vid_p(:,1)))),ceil(sqrt(length(missed_vid_p(:,1)))),pp)
+%         title('live vs attack handheld')
         hold on
         % load HR_vec, SNR_goodness
-        load(['3DMAD-' '-' num2str(f) '-' num2str(m) '.mat'], 'HR_vec', 'SNR_goodness')
+%         load(['3DMAD-' '-' num2str(f) '-' num2str(m) '.mat'], 'HR_vec', 'SNR_goodness')
+
         if f == 1 || f== 2 
             plot(HR_vec, SNR_goodness, '*b')
             c1 = c1+1;
@@ -33,6 +52,7 @@ for f = 1:3
             plot(HR_vec, SNR_goodness, '*r')
             c2 = c2+1;
         end
+        title([num2str(f) ' - ' num2str(m)])
     end
 end
 % save % fig

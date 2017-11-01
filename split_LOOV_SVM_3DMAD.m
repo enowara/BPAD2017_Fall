@@ -166,6 +166,10 @@ for p = 1:pEnd
         Xtr = [PdataLtr; PdataFtr];
         Xts = [PdataLts; PdataFts];
         
+        Mlist = [MlistL; MlistA];
+
+        Mtr = find(ismember(Mlist(:,2), Str_idx));
+        Mts = find(ismember(Mlist(:,2), Sts_idx));
         
         % keep only some of the features
 %         idx_feature = [1:22]; % the first 2
@@ -195,6 +199,10 @@ for p = 1:pEnd
         predictionSVMLive = (length(find(labelLive==YtsLive))/length(YtsLive))*100;
         predictionSVMFake = (length(find(labelFake==YtsFake))/length(YtsFake))*100;
         
+        %% relate missed videos
+        all_miss = find(labelSVM~=Yts); % all misclassified test observations
+        missed_vids_idx = Mts(all_miss,:);
+        missed_vids = Mlist(missed_vids_idx, :);
         
 scores_SVM_postcell{p} = score_posterior;    
 scores_SVMcell{p} = num2cell(score);
@@ -205,6 +213,7 @@ labelsSVMcell{p} = labelSVM;
 predictionAllSVM = [predictionAllSVM; predictionSVM];
 predictionAllSVMLive = [predictionAllSVMLive; predictionSVMLive];
 predictionAllSVMFake = [predictionAllSVMFake; predictionSVMFake];
+missed_vids_All{p} = missed_vids;
 
 
 end

@@ -1,3 +1,5 @@
+
+
 % split features into testing and training by pth person for LOOV approach
 warning off
 N = size(HR_vec_All_Attack,2); % number of features per face - # ROIs
@@ -21,6 +23,7 @@ endTestPerson2 = [];
 endTestPerson3 = [];
     
 allPeople = startTestPerson1(1):endTestPerson1(end); 
+
 
 pEnd = 18; 
 
@@ -47,15 +50,142 @@ for p = 1:pEnd
          testPerson3 = [];
      end
     testPersonInit = [testPerson1 testPerson2 testPerson3];
-    
+        
     testPerson = testPersonInit;
     trainPeople = setdiff(allPeople, testPerson); 
     
+
+    %% split by handheld or fixed scenario
+
+FixedIdx = [];
+    for mm = [3,7,9,13,15,19] -2;
+%         mm
+        FixedIdx = [FixedIdx (mm-1)*6+1:mm*6];% [[7*(1:6):8*6], [13*6:14*6], [20*6:19*6]]
+    end
+
+
+    %% if splitting both tr and ts into hand vs fixed
+% 
+% % %     % if all 
+    allPeople = startTestPerson1(1):endTestPerson1(end); 
+    testPerson = testPersonInit;
+    trainPeople = setdiff(allPeople, testPerson); 
+% %     
+% % %     % if only hand 
+% % 
+%     allPeople = setdiff(allPeople, FixedIdx);
+%     testPerson = setdiff(testPersonInit,FixedIdx);
+%     trainPeople = setdiff(allPeople, testPerson); 
+%     
+% %     % if only fixed
+%     allPeople = intersect(allPeople, FixedIdx);
+%     testPerson = intersect(testPersonInit, FixedIdx);
+%     trainPeople = setdiff(allPeople, testPerson); 
+    
+    
+%     % if splitting only ts
+% 
+%     % if all 
+%     allPeople = startTestPerson1(1):endTestPerson1(end); 
+%     testPerson = testPersonInit;
+%     trainPeople = setdiff(allPeople, testPerson); 
+%     % if only hand 
+%     allPeople = setdiff(allPeople, FixedIdx);
+%     testPerson = testPersonInit;
+%     trainPeople = setdiff(allPeople, testPerson); 
+% 
+%     % if only fixed
+%     allPeople = intersect(allPeople, FixedIdx);
+%     testPerson = testPersonInit;
+%     trainPeople = setdiff(allPeople, testPerson); 
+    %% TESTING
+    LiveIdx = [];
+    for mm = [7,8,13,14,19,20] -2;
+%         mm
+        LiveIdx = [LiveIdx (mm-1)*6+1:mm*6];% [[7*(1:6):8*6], [13*6:14*6], [20*6:19*6]]
+    end
+        FakeIdx = setdiff([1:108], LiveIdx);
+%     find testing people indices     
+    Sts_idx = testPerson;
+    Sts_idx_L = Sts_idx;
+    Sts_idx_A = Sts_idx;
+    
+    Sts_idx_Ltemp = intersect(Sts_idx, LiveIdx);
+    Sts_idx_Atemp = intersect(Sts_idx, FakeIdx);
+    
+    
+    orderedLiveIdx_1ts = ismember(Sts_idx_Ltemp, LiveIdx);
+    Sts_idx_L = find(orderedLiveIdx_1ts);
+    
+    ordererAttackIdx_1ts = ismember(Sts_idx_Atemp, FakeIdx);
+    Sts_idx_A = find(ordererAttackIdx_1ts);
+    % keep the order for live and attack
+%     Sts_idx_L1 = intersect(Sts_idx,order_Live);
+%     [~,Sts_idx_L] = ismember(Sts_idx_L1, order_Live);
+%     
+%     Sts_idx_A1 = intersect(Sts_idx,order_Attack);
+%     [~,Sts_idx_A] = ismember(Sts_idx_A1, order_Attack);
+    
+%     check_L = MlistL(Str_idx);
+%     
+%     check_A = MlistA(Str_idx);
+
+%       f_test = testPerson;
+    
+
+
+    % feature 1
+    HR_vec_All_live_p1_ts = HR_vec_All_Live1(Sts_idx_L,:);% include each tr persons 16 ROIs
+%     HR_vec_All_live_p2_ts = HR_vec_All_Live2(Sts_idx,:);
+    HR_vec_All_live_p_ts = [HR_vec_All_live_p1_ts];% HR_vec_All_live_p2_ts];
+    
+    HR_vec_All_attack_p_ts = HR_vec_All_Attack(Sts_idx_A,:);
+    
+    % feature 2
+    SNR_goodness_All_live_p1_ts = SNR_goodness_All_Live1(Sts_idx_L,:);% include each tr persons 16 ROIs
+%     SNR_goodness_All_live_p2_ts = SNR_goodness_All_Live2(Sts_idx,:);
+    SNR_goodness_All_live_p_ts = [SNR_goodness_All_live_p1_ts];% SNR_goodness_All_live_p2_ts];
+    
+    SNR_goodness_All_attack_p_ts = SNR_goodness_All_Attack(Sts_idx_A,:);
+    
+    % feature 3
+    SNR_2_All_live_p1_ts = SNR_2_All_Live1(Sts_idx_L,:);% include each tr persons 16 ROIs
+%     SNR_2_All_live_p2_ts = SNR_2_All_Live2(Sts_idx,:);
+    SNR_2_All_live_p_ts = [SNR_2_All_live_p1_ts];% SNR_2_All_live_p2_ts];
+    
+    SNR_2_All_attack_p_ts = SNR_2_All_Attack(Sts_idx_A,:);
+    
+    % feature 4
+    diff_HR_med_All_live_p1_ts = diff_HR_med_All_Live1(Sts_idx_L,:);% include each tr persons 16 ROIs
+%     diff_HR_med_All_live_p2_ts = diff_HR_med_All_Live2(Sts_idx,:);
+    diff_HR_med_All_live_p_ts = [diff_HR_med_All_live_p1_ts];% diff_HR_med_All_live_p2_ts];
+    
+    diff_HR_med_All_attack_p_ts = diff_HR_med_All_Attack(Sts_idx_A,:);
+    
+    % feature 5
+    diff_HR_ave_All_live_p1_ts = diff_HR_ave_All_Live1(Sts_idx_L,:);% include each tr persons 16 ROIs
+%     diff_HR_ave_All_live_p2_ts = diff_HR_ave_All_Live2(Sts_idx,:);
+    diff_HR_ave_All_live_p_ts = [diff_HR_ave_All_live_p1_ts];% diff_HR_ave_All_live_p2_ts];
+    
+    diff_HR_ave_All_attack_p_ts = diff_HR_ave_All_Attack(Sts_idx_A,:);
+
+    
     %% TRAINING
     
+    
     Str_idx = trainPeople;
-    Str_idx_L = Str_idx;
-    Str_idx_A = Str_idx;
+    Str_idx_Ltemp = intersect(Str_idx, LiveIdx);
+    Str_idx_Atemp = intersect(Str_idx, FakeIdx);
+    
+    
+    orderedLiveIdx_1 = ismember(Str_idx_Ltemp, LiveIdx);
+    Str_idx_Ltemp = find(orderedLiveIdx_1);
+    Str_idx_L = setdiff(Str_idx_Ltemp, Sts_idx_L);
+    
+    
+    ordererAttackIdx_1 = ismember(Str_idx_Atemp, FakeIdx);
+    Str_idx_Atemp = find(ordererAttackIdx_1);
+    Str_idx_A = setdiff(Str_idx_Atemp, Sts_idx_A);
     % split all 5 live features
     
     % order of live matrices
@@ -104,64 +234,7 @@ for p = 1:pEnd
     diff_HR_ave_All_live_p_tr = [diff_HR_ave_All_live_p1];% diff_HR_ave_All_live_p2];
     
     diff_HR_ave_All_attack_p_tr = diff_HR_ave_All_Attack(Str_idx_A,:);
-    
-    %% TESTING
-    
-%     find testing people indices     
-    Sts_idx = testPerson;
-    Sts_idx_L = Sts_idx;
-    Sts_idx_A = Sts_idx;
-    % keep the order for live and attack
-%     Sts_idx_L1 = intersect(Sts_idx,order_Live);
-%     [~,Sts_idx_L] = ismember(Sts_idx_L1, order_Live);
-%     
-%     Sts_idx_A1 = intersect(Sts_idx,order_Attack);
-%     [~,Sts_idx_A] = ismember(Sts_idx_A1, order_Attack);
-    
-    check_L = MlistL(Str_idx);
-    
-    check_A = MlistA(Str_idx);
-
-%       f_test = testPerson;
-    
-
-
-    % feature 1
-    HR_vec_All_live_p1_ts = HR_vec_All_Live1(Sts_idx_L,:);% include each tr persons 16 ROIs
-%     HR_vec_All_live_p2_ts = HR_vec_All_Live2(Sts_idx,:);
-    HR_vec_All_live_p_ts = [HR_vec_All_live_p1_ts];% HR_vec_All_live_p2_ts];
-    
-    HR_vec_All_attack_p_ts = HR_vec_All_Attack(Sts_idx_A,:);
-    
-    % feature 2
-    SNR_goodness_All_live_p1_ts = SNR_goodness_All_Live1(Sts_idx_L,:);% include each tr persons 16 ROIs
-%     SNR_goodness_All_live_p2_ts = SNR_goodness_All_Live2(Sts_idx,:);
-    SNR_goodness_All_live_p_ts = [SNR_goodness_All_live_p1_ts];% SNR_goodness_All_live_p2_ts];
-    
-    SNR_goodness_All_attack_p_ts = SNR_goodness_All_Attack(Sts_idx_A,:);
-    
-    % feature 3
-    SNR_2_All_live_p1_ts = SNR_2_All_Live1(Sts_idx_L,:);% include each tr persons 16 ROIs
-%     SNR_2_All_live_p2_ts = SNR_2_All_Live2(Sts_idx,:);
-    SNR_2_All_live_p_ts = [SNR_2_All_live_p1_ts];% SNR_2_All_live_p2_ts];
-    
-    SNR_2_All_attack_p_ts = SNR_2_All_Attack(Sts_idx_A,:);
-    
-    % feature 4
-    diff_HR_med_All_live_p1_ts = diff_HR_med_All_Live1(Sts_idx_L,:);% include each tr persons 16 ROIs
-%     diff_HR_med_All_live_p2_ts = diff_HR_med_All_Live2(Sts_idx,:);
-    diff_HR_med_All_live_p_ts = [diff_HR_med_All_live_p1_ts];% diff_HR_med_All_live_p2_ts];
-    
-    diff_HR_med_All_attack_p_ts = diff_HR_med_All_Attack(Sts_idx_A,:);
-    
-    % feature 5
-    diff_HR_ave_All_live_p1_ts = diff_HR_ave_All_Live1(Sts_idx_L,:);% include each tr persons 16 ROIs
-%     diff_HR_ave_All_live_p2_ts = diff_HR_ave_All_Live2(Sts_idx,:);
-    diff_HR_ave_All_live_p_ts = [diff_HR_ave_All_live_p1_ts];% diff_HR_ave_All_live_p2_ts];
-    
-    diff_HR_ave_All_attack_p_ts = diff_HR_ave_All_Attack(Sts_idx_A,:);
-
-    
+    %%
     liveFolders = 1:2;
     fakeFolders = 3;
     
@@ -173,14 +246,14 @@ for p = 1:pEnd
     
     % all features together
     
-    PdataLtr = [HR_vec_All_live_p_tr, SNR_goodness_All_live_p_tr, SNR_2_All_live_p_tr, ...
-        diff_HR_med_All_live_p_tr, diff_HR_ave_All_live_p_tr];
-    PdataFtr = [HR_vec_All_attack_p_tr, SNR_goodness_All_attack_p_tr, SNR_2_All_attack_p_tr,...
-        diff_HR_med_All_attack_p_tr, diff_HR_ave_All_attack_p_tr];
-    PdataLts = [HR_vec_All_live_p_ts, SNR_goodness_All_live_p_ts, SNR_2_All_live_p_ts, ...
-        diff_HR_med_All_live_p_ts, diff_HR_ave_All_live_p_ts];
-    PdataFts = [HR_vec_All_attack_p_ts, SNR_goodness_All_attack_p_ts, SNR_2_All_attack_p_ts,...
-        diff_HR_med_All_attack_p_ts, diff_HR_ave_All_attack_p_ts];
+    PdataLtr = [HR_vec_All_live_p_tr, SNR_goodness_All_live_p_tr];%;, SNR_2_All_live_p_tr, ...
+%         diff_HR_med_All_live_p_tr, diff_HR_ave_All_live_p_tr];
+    PdataFtr = [HR_vec_All_attack_p_tr, SNR_goodness_All_attack_p_tr];%, SNR_2_All_attack_p_tr,...
+%         diff_HR_med_All_attack_p_tr, diff_HR_ave_All_attack_p_tr];
+    PdataLts = [HR_vec_All_live_p_ts, SNR_goodness_All_live_p_ts];%, SNR_2_All_live_p_ts, ...
+%         diff_HR_med_All_live_p_ts, diff_HR_ave_All_live_p_ts];
+    PdataFts = [HR_vec_All_attack_p_ts, SNR_goodness_All_attack_p_ts];%, SNR_2_All_attack_p_ts,...
+%         diff_HR_med_All_attack_p_ts, diff_HR_ave_All_attack_p_ts];
 
     %% 20:80 instead of LOOV
     PdataL = [HR_vec_All_Live1, SNR_goodness_All_Live1];%, SNR_2_All_Live1, ...
@@ -198,6 +271,11 @@ for p = 1:pEnd
 %         YtrF = zeros(size(PdataFtr,1), 1);
 %         YtsL = ones(size(PdataLts,1), 1);
 %         YtsF = zeros(size(PdataFts,1), 1);
+%         
+%         Xtr = [PdataLtr; PdataFtr];
+%         Xts = [PdataLts; PdataFts];
+%         Ytr = [YtrL; YtrF];
+%         Yts = [YtsL; YtsF];
         %% shuffle
         XtrtsTemp = [PdataL; PdataF];
         YtrtsTemp = [YL; YF];
@@ -206,23 +284,23 @@ for p = 1:pEnd
         s = RandStream('mt19937ar','Seed',sum(100*clock));
         orderTrtsi = randperm(s, size(XYtrtsTempM,1));
         XYtrtsM = XYtrtsTempM(orderTrtsi,:);
-% 
+
         Xtrts = XYtrtsM(:,1:(end-4));
         Ytrts = XYtrtsM(:,(end-2));  % is 582, should be 1200?
         Mtrts = XYtrtsM(:,end-1:end);
         
-        % split into tr and ts 80:20
+%         split into tr and ts 80:20
         
         Xtr = Xtrts(1:floor(0.8*size(Xtrts)), :);
         Xts = Xtrts(floor(0.8*size(Xtrts))+1:end, :);  
-        
+%         
         Ytr = Ytrts(1:floor(0.8*size(Xtrts)), :);
         Yts = Ytrts(floor(0.8*size(Xtrts))+1:end, :);  
-        
-        
+%         
+%         
         Mtr = Mtrts(1:floor(0.8*size(Xtrts)), :);
         Mts = Mtrts(floor(0.8*size(Xtrts))+1:end, :);  
-        % combine live and fake
+%         combine live and fake
         
 %         % if want balanced classes
 %         Ytr = [YtrL(1:80,:); YtrF];
@@ -232,8 +310,7 @@ for p = 1:pEnd
 %         Xts = [PdataLts(1:5,:); PdataFts];
         
 %         % else if using all data, where 2 x more live
-%         Ytr = [YtrL; YtrF];
-%         Yts = [YtsL; YtsF];
+
 % 
 %         Xtr = [PdataLtr; PdataFtr];
 %         Xts = [PdataLts; PdataFts];
@@ -244,12 +321,10 @@ for p = 1:pEnd
         
 %         Xtr = Xtr(:,idx_feature);
 %         Xts = Xts(:,idx_feature);
+
+
 %% train a classifier or threshold
-
-% call a classifier function and save result fHR_vec_All_Live1or each p run
-
-% SVM,put in a fct l8r
-        SVMModel = fitcsvm(Xtr,Ytr,'KernelFunction','linear','Standardize',false);
+SVMModel = fitcsvm(Xtr,Ytr,'KernelFunction','linear','Standardize',false);
         [labelSVM,score] = predict(SVMModel,Xts);
         predictionSVM = (length(find(labelSVM==Yts))/length(Yts))*100;
         
@@ -300,10 +375,13 @@ predictionAllSVMFake = [predictionAllSVMFake; predictionSVMFake];
 
 end
 
-predictionAverageSVM = sum(predictionAllSVM)/length(predictionAllSVM);
+predictionAverageSVM = sum((predictionAllSVM))/length(predictionAllSVM);
         disp([num2str(predictionAverageSVM) '% Average SVM accuracy']);
 
-        predictionAverageSVMLive = sum(predictionAllSVMLive)/length(predictionAllSVMLive);
-        disp([num2str(predictionAverageSVMLive) '% Average Live SVM accuracy']);
-        predictionAverageSVMFake = sum(predictionAllSVMFake)/length(predictionAllSVMFake);
-        disp([num2str(predictionAverageSVMFake) '% Average Fake SVM accuracy']);
+        predictionAverageSVMLive = sum((predictionAllSVMLive))/length(predictionAllSVMLive);
+        disp([num2str(predictionAverageSVMLive) '% Average RDF SVM accuracy']);
+        predictionAverageSVMFake = sum((predictionAllSVMFake))/length(predictionAllSVMFake);
+        disp([num2str(predictionAverageSVMFake) '% Average Fake RDF accuracy']);
+
+        
+        
