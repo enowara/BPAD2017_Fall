@@ -8,6 +8,17 @@ function small_facialRegions = split_to_100_smallROIs(facialRegions, blockSizeR,
     for i = 1:length(facialRegions)
         % take all points defining that ROI
         one_ROI = facialRegions{i}; % points defining the ROI
+        % keep only indices greater than 0
+        one_ROI_x = one_ROI(:,1);
+        one_ROI_y = one_ROI(:,2);
+        
+        one_ROI_x_idx = find(floor(one_ROI_x) <= 0);
+        one_ROI_y_idx = find(floor(one_ROI_y) <= 0);
+        
+        same_idx = union(one_ROI_x_idx, one_ROI_y_idx);
+        diff_idx = setdiff([1:length(one_ROI_x)], same_idx);% those are the idx to remove
+        one_ROI = one_ROI(diff_idx,:);
+        one_ROI = double(one_ROI);
         % part of the frame containing points of interest
         one_ROI_img = poly2mask(one_ROI(:,1), one_ROI(:,2), size(firstFrame,1), size(firstFrame,2));
         
@@ -48,7 +59,9 @@ function small_facialRegions = split_to_100_smallROIs(facialRegions, blockSizeR,
 %                     break
                     continue
                 else
+              
                 oneBlock = one_ROI_img(col1:col2, row1:row2);
+                
                 % want to average all pixels inside the little oneBlock
                 
                 % make sure that not all points are outside of the ROI
@@ -86,8 +99,8 @@ function small_facialRegions = split_to_100_smallROIs(facialRegions, blockSizeR,
 
 %                 figure, imshow(firstFrame), 
 %                 hold on, 
-%                 plot([row1:row2], [col1:col2], '*y')
-%                 drawnow
+                plot([row1:row2], [col1:col2], '*y')
+                drawnow
 %                 pause()
                 end
             end

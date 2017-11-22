@@ -51,15 +51,15 @@ for n = 1:N
     facialRegions{n} = regioni;
 end
 %% visualize
-% figure, imshow(firstFrame), hold on, 
-% N = length(facialRegions);
-% for i = 1:N
-%     pnts_plot = facialRegions{i};
-%     A(i) = polyarea(pnts_plot(:,1), pnts_plot(:,2));
-% 
+figure, imshow(firstFrame), hold on, 
+N = length(facialRegions);
+for i = 1:N
+    pnts_plot = facialRegions{i};
+    A(i) = polyarea(pnts_plot(:,1), pnts_plot(:,2));
+
 %     plot(pnts_plot(:,1), pnts_plot(:,2), 'LineWidth', 2)
-% %     title(num2str(i))
-% %     pause()
-% end
-% hold on
-% plot(firstPoints_augmented1(:,1), firstPoints_augmented1(:,2), '*g')
+%     title(num2str(i))
+%     pause()
+end
+hold on
+plot(firstPoints_augmented1(:,1), firstPoints_augmented1(:,2), '*g')

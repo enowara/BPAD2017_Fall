@@ -7,6 +7,7 @@ function [finalImg, firstPoints_augmented1] = face_points_mask(firstPoints1, vid
 % faceROI - binary mask defining where the face is in the image, excluding
     % eyes and mouth
 % firstPoints_augmented1 - facial landmarks with forehead added    
+firstPoints_augmented1 = [];
 for t = 1:size(vidSin_out,3)
     
     firstFrame = vidSin_out(:,:,t);
@@ -107,7 +108,8 @@ finalImg = finalMask.*double(firstFrame);
     firstPoints_augmented_x1 = [firstPoints2(:,1); forehead1(:,1)]; % add points to the forehead
     firstPoints_augmented_y1 = [firstPoints2(:,2); forehead1(:,2)];
 
-    firstPoints_augmented1 = [firstPoints_augmented_x1 firstPoints_augmented_y1];
+    firstPoints_augmented1_t = [firstPoints_augmented_x1 firstPoints_augmented_y1];
+    firstPoints_augmented1 = [firstPoints_augmented1; firstPoints_augmented1_t];
     % if many frames, save all points
 end
 
