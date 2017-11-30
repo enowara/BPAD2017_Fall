@@ -1,4 +1,4 @@
-function [vidSin_out1, vidCol_out1, Fps1] = read_video(filename1, fullPath2File1, vid_phot1, fileFormat1, vid_start1, vid_end1)
+function [vidSin_out1, vidCol_out1, Fps1] = read_video1(filename1, fullPath2File1, vid_phot1, fileFormat1, vid_start1, vid_end1)
 
 % given filename and file location, read in the video and keep only the
 % channel of interest

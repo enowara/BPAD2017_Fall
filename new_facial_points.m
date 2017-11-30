@@ -1,4 +1,4 @@
-
+function new_facial_points1 = new_facial_points(firstPoints_augmented1_init, fullPath2Save)
 
 % generate new points interpolated between facial landmarks
 
@@ -368,79 +368,79 @@ ly = linspace(y_temp(1), y_temp(2), 3);
 np_65 = [lx(2), ly(2)];
 
 %% save
-new_facial_points{1} = np_1;
-new_facial_points{2} = np_2;
-new_facial_points{3} = np_3;
-new_facial_points{4} = np_4;
-new_facial_points{5} = np_5;
-new_facial_points{6} = np_6;
-new_facial_points{7} = np_7;
-new_facial_points{8} = np_8;
-new_facial_points{9} = np_9;
-new_facial_points{10} = np_10;
+new_facial_points1{1} = np_1;
+new_facial_points1{2} = np_2;
+new_facial_points1{3} = np_3;
+new_facial_points1{4} = np_4;
+new_facial_points1{5} = np_5;
+new_facial_points1{6} = np_6;
+new_facial_points1{7} = np_7;
+new_facial_points1{8} = np_8;
+new_facial_points1{9} = np_9;
+new_facial_points1{10} = np_10;
 
-new_facial_points{11} = np_11;
-new_facial_points{12} = np_12;
-new_facial_points{13} = np_13;
-new_facial_points{14} = np_14;
-new_facial_points{15} = np_15;
-new_facial_points{16} = np_16;
-new_facial_points{17} = np_17;
-new_facial_points{18} = np_18;
-new_facial_points{19} = np_19;
-new_facial_points{20} = np_20;
+new_facial_points1{11} = np_11;
+new_facial_points1{12} = np_12;
+new_facial_points1{13} = np_13;
+new_facial_points1{14} = np_14;
+new_facial_points1{15} = np_15;
+new_facial_points1{16} = np_16;
+new_facial_points1{17} = np_17;
+new_facial_points1{18} = np_18;
+new_facial_points1{19} = np_19;
+new_facial_points1{20} = np_20;
 
-new_facial_points{21} = np_21;
-new_facial_points{22} = np_22;
-new_facial_points{23} = np_23;
-new_facial_points{24} = np_24;
-new_facial_points{25} = np_25;
-new_facial_points{26} = np_26;
-new_facial_points{27} = np_27;
-new_facial_points{28} = np_28;
-new_facial_points{29} = np_29;
-new_facial_points{30} = np_30;
+new_facial_points1{21} = np_21;
+new_facial_points1{22} = np_22;
+new_facial_points1{23} = np_23;
+new_facial_points1{24} = np_24;
+new_facial_points1{25} = np_25;
+new_facial_points1{26} = np_26;
+new_facial_points1{27} = np_27;
+new_facial_points1{28} = np_28;
+new_facial_points1{29} = np_29;
+new_facial_points1{30} = np_30;
 
-new_facial_points{31} = np_31;
-new_facial_points{32} = np_32;
-new_facial_points{33} = np_33;
-new_facial_points{34} = np_34;
-new_facial_points{35} = np_35;
-new_facial_points{36} = np_36;
-new_facial_points{37} = np_37;
-new_facial_points{38} = np_38;
-new_facial_points{39} = np_39;
-new_facial_points{40} = np_40;
+new_facial_points1{31} = np_31;
+new_facial_points1{32} = np_32;
+new_facial_points1{33} = np_33;
+new_facial_points1{34} = np_34;
+new_facial_points1{35} = np_35;
+new_facial_points1{36} = np_36;
+new_facial_points1{37} = np_37;
+new_facial_points1{38} = np_38;
+new_facial_points1{39} = np_39;
+new_facial_points1{40} = np_40;
 
-new_facial_points{41} = np_41;
-new_facial_points{42} = np_42;
-new_facial_points{43} = np_43;
-new_facial_points{44} = np_44;
-new_facial_points{45} = np_45;
-new_facial_points{46} = np_46;
-new_facial_points{47} = np_47;
-new_facial_points{48} = np_48;
-new_facial_points{49} = np_49;
-new_facial_points{50} = np_50;
+new_facial_points1{41} = np_41;
+new_facial_points1{42} = np_42;
+new_facial_points1{43} = np_43;
+new_facial_points1{44} = np_44;
+new_facial_points1{45} = np_45;
+new_facial_points1{46} = np_46;
+new_facial_points1{47} = np_47;
+new_facial_points1{48} = np_48;
+new_facial_points1{49} = np_49;
+new_facial_points1{50} = np_50;
 
-new_facial_points{51} = np_51;
-new_facial_points{52} = np_52;
-new_facial_points{53} = np_53;
-new_facial_points{54} = np_54;
-new_facial_points{55} = np_55;
-new_facial_points{56} = np_56;
-new_facial_points{57} = np_57;
-new_facial_points{58} = np_58;
-new_facial_points{59} = np_59;
-new_facial_points{60} = np_60;
+new_facial_points1{51} = np_51;
+new_facial_points1{52} = np_52;
+new_facial_points1{53} = np_53;
+new_facial_points1{54} = np_54;
+new_facial_points1{55} = np_55;
+new_facial_points1{56} = np_56;
+new_facial_points1{57} = np_57;
+new_facial_points1{58} = np_58;
+new_facial_points1{59} = np_59;
+new_facial_points1{60} = np_60;
 
-new_facial_points{61} = np_61;
-new_facial_points{62} = np_62;
-new_facial_points{63} = np_63;
-new_facial_points{64} = np_64;
-new_facial_points{65} = np_65;
-new_facial_points{66} = np_37_2;
-new_facial_points{67} = np_39_2;
+new_facial_points1{61} = np_61;
+new_facial_points1{62} = np_62;
+new_facial_points1{63} = np_63;
+new_facial_points1{64} = np_64;
+new_facial_points1{65} = np_65;
+new_facial_points1{66} = np_37_2;
+new_facial_points1{67} = np_39_2;
 
 save([fullPath2Save 'new_facial_points.mat'], 'np_1', 'np_2', 'np_3', 'np_4', 'np_5', 'np_6', 'np_7', ...
     'np_8', 'np_9', 'np_10', 'np_11', 'np_12', 'np_13', 'np_14', 'np_15', 'np_16', 'np_17', ...
@@ -449,4 +449,4 @@ save([fullPath2Save 'new_facial_points.mat'], 'np_1', 'np_2', 'np_3', 'np_4', 'n
     'np_37_2', 'np_39_2','np_40', 'np_41', 'np_42', 'np_43', 'np_44', 'np_49', 'np_50', 'np_51', ...
     'np_52', 'np_53', 'np_54', 'np_55', 'np_56', 'np_57', 'np_58', 'np_59', 'np_60', 'np_61', ...
     'np_62', 'np_63', 'np_64', 'np_65')
-
+end

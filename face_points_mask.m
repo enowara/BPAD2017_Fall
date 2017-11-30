@@ -1,4 +1,4 @@
-function [finalImg, firstPoints_augmented1] = face_points_mask(firstPoints1, vidSin_out)
+function [faceROI, firstPoints_augmented1] = face_points_mask(firstPoints1, vidSin_out)
 % input: 
 % firstPoints1 - 68 detected landmarks
 % vidSin_out - video frames

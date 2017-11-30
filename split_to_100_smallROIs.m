@@ -99,8 +99,8 @@ function small_facialRegions = split_to_100_smallROIs(facialRegions, blockSizeR,
 
 %                 figure, imshow(firstFrame), 
 %                 hold on, 
-                plot([row1:row2], [col1:col2], '*y')
-                drawnow
+%                 plot([row1:row2], [col1:col2], '*y')
+%                 drawnow
 %                 pause()
                 end
             end
